@@ -30,14 +30,13 @@ int main(int argc,char **argv){
 	printf("program start!\n");
 	HttpRequest *request = new HttpRequest();
 	string url = "http://autoapi.openspeech.cn/csp/api/v2.2/programe/type?";
-	//string url = "http://autoapi.openspeech.cn/api/v2/programe/type?";
-	string openkey = "d9b5be90369b4a3292a82dfb629f1d31";
+	string openkey = "***";
 	string sig = "";
 	vector<paraPair> paraList;
 	paraPair tmp;
 	// common params
 	tmp.name = "openId";
-	tmp.value = "jianghuai";
+	tmp.value = "***";
 	paraList.push_back(tmp);
 
 	tmp.name = "sId";
