@@ -36,3 +36,25 @@ int main(){
 	}
 	return 0;
 }
+/*
+create tid 0.
+create tid 1.
+create tid 2.
+create tid 3.
+create tid 4.
+create tid 5.
+create tid 6.
+create tid 7.
+create tid 8.
+create tid 9.
+tid 0 finished.
+tid 1 finished.
+tid 2 finished.
+tid 3 finished.
+tid 4 finished.
+tid 5 finished.
+tid 6 finished.
+tid 7 finished.
+tid 8 finished.
+tid 9 finished. 
+ */
