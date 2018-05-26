@@ -5,4 +5,5 @@ This folder stores some C/C++ libraries and simple examples.
 <li> threadFinishBySem.c: a semphore multi-threads example which makes sure some threads finished order by it's ID (0,1,2,3,...,9)
 <li> pointerFun.cpp: a function pointer using example. It's very simple and easy to use.
 <li> arrayExpand.cpp: a simple example which showes how to expand an array. Its solution was gotten from C++ STL::vector
-<li> itoa.cpp:	my custom itoa function. It convert long long data to char *.
+<li> itoa.cpp:	my custom itoa function. It convert long long data to char *
+<li> dateTime.cpp: simple example that uses boost date type "date_time".
