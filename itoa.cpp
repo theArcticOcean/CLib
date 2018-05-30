@@ -7,7 +7,6 @@
 #include <string.h>
 using namespace std;
 
-
 char *itoa(long long  a){
     bool negtive = false;
     if(a < 0){
@@ -35,8 +34,10 @@ char *itoa(long long  a){
 int main()
 {
     long long a;
+
     while (cin>>a) {
         cout<<itoa(a)<<endl;
     }
+
     return 0;
 }
