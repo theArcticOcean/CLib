@@ -16,6 +16,7 @@ int main(int argc, char **argv){
 	int cnt = 0;
 	int i;
 	pthread_t tid;
+
 	sem = sem_open("test_sem",O_CREAT,0777,0);
 	if(pthread_create(&tid,NULL,run,&cnt)){
 		perror("pthread create: ");	
@@ -30,5 +31,6 @@ int main(int argc, char **argv){
 	pthread_cancel(tid);
 	sem_close(sem);
 	printf("%d\n",cnt);
+
 	return 0;
 }
