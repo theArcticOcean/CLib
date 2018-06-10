@@ -7,3 +7,4 @@ This folder stores some C/C++ libraries and simple examples.
 <li> arrayExpand.cpp: a simple example which showes how to expand an array. Its solution was gotten from C++ STL::vector
 <li> itoa.cpp:	my custom itoa function. It convert long long data to char *
 <li> date_time.cpp: simple example that uses boost date type "date_time".
+<li> boostSignal: some cases shows how to use boost's signals.
