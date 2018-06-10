@@ -8,3 +8,4 @@ This folder stores some C/C++ libraries and simple examples.
 <li> itoa.cpp:	my custom itoa function. It convert long long data to char *
 <li> date_time.cpp: simple example that uses boost date type "date_time".
 <li> boostSignal: some cases shows how to use boost's signals.
+<li> boostBind: some cases shows how to use boost's bind.
