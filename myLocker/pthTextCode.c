@@ -73,7 +73,7 @@ void* pthTextCode_run(void *arg){
 		int client_len;
 		client_len = sizeof(client);
 		memset(buff,0,pthTextCode_buff_len);
-		ret = recvfrom(sock_fd,buff,pthTextCode_buff_len,0,(struct sockaddr*)&client,&client_len);
+		ret = recvfrom(sock_fd,buff,pthTextCode_buff_len,0,(struct sockaddr*)&client,(socklen_t *)&client_len);
 		pthread_mutex_lock(&mutex_output);
 		pthPrint();
 		printf("ret: %d, recv buff: %s\n",ret,buff);

@@ -82,7 +82,7 @@ void* pthLocker_run(void *arg){
 		client_len = sizeof(client);
 		main_addr_len = sizeof(main_addr);
 		memset(buff,0,pthLocker_buff_len);
-		ret = recvfrom(sock_fd,buff,pthLocker_buff_len,0,(struct sockaddr*)&client,&client_len);
+		ret = recvfrom(sock_fd,buff,pthLocker_buff_len,0,(struct sockaddr*)&client,(socklen_t *)&client_len);
 		
 		pthread_mutex_lock(&mutex_output);
 		pthPrint();
@@ -157,8 +157,8 @@ int pth_encrypt(){
 	tmp = NULL;
 	filename = (char *)malloc(105*sizeof(char));
 	folder = (char *)malloc(105*sizeof(char));
-	memset(filename,0,sizeof(filename));
-	memset(folder,0,sizeof(folder));
+	memset(filename, 0, 105);
+	memset(folder, 0, 105);
 	
 	pthread_mutex_lock(&mutex_output);
 	pthPrint();
@@ -235,8 +235,8 @@ int pth_decrypt(){
 	buff = NULL;
 	filename = (char *)malloc(105*sizeof(char));
 	folder = (char *)malloc(105*sizeof(char));
-	memset(filename,0,sizeof(filename));
-	memset(folder,0,sizeof(folder));
+	memset(filename,0,105);
+	memset(folder,0,105);
 	
 	pthread_mutex_lock(&mutex_output);
 	pthPrint();

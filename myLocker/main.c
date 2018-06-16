@@ -100,7 +100,7 @@ int main(){
 		pthread_mutex_unlock(&mutex_output);
 	}
 	
-	main_send_fd = socket(AF_INET,SOCK_DGRAM|SOCK_NONBLOCK,0);
+	main_send_fd = socket(AF_INET,SOCK_DGRAM,0);
 	if(main_send_fd < 0){
 		close(main_send_fd);
 		pthPrint();
@@ -136,7 +136,7 @@ int main(){
 	/* the ports which we can register for our service are in the range [1024~49151] */
 	main_addr.sin_port = htons(mainPort);
 
-	main_lock_fd = socket(AF_INET,SOCK_DGRAM|SOCK_NONBLOCK,0);
+	main_lock_fd = socket(AF_INET,SOCK_DGRAM,0);
 	ret = setsockopt(main_lock_fd,SOL_SOCKET,SO_REUSEADDR,&option,sizeof(option));
 	if(ret < 0){
 		pthPrint();
@@ -220,7 +220,7 @@ loop:
 		}
 
 		if(FD_ISSET(main_send_fd,&readfds)){	
-			ret = recvfrom(main_send_fd,buff,BUFF_LEN,0,(struct sockaddr *)&client_addr,&client_addr_len);
+			ret = recvfrom(main_send_fd,buff,BUFF_LEN,0,(struct sockaddr *)&client_addr,(socklen_t *)&client_addr_len);
 			if(ret > 0){
 				if(strcmp(buff,"prime numbers created!") == 0){
 					pthread_mutex_lock(&mutex_output);
@@ -270,7 +270,7 @@ loop:
 			}
 		}
 		else if(FD_ISSET(main_lock_fd,&readfds)){
-			ret = recvfrom(main_lock_fd,buff,BUFF_LEN,0,(struct sockaddr *)&locker_addr,&locker_addr_len);
+			ret = recvfrom(main_lock_fd,buff,BUFF_LEN,0,(struct sockaddr *)&locker_addr,(socklen_t *)&locker_addr_len);
 			if(ret > 0){
 				if(strcmp(buff,"encrypt ok") == 0){
 					pthread_mutex_lock(&mutex_output);	
