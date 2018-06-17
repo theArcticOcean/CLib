@@ -11,3 +11,4 @@ This folder stores some C/C++ libraries and simple examples.
 <li> boostBind: some cases shows how to use boost's bind.
 <li> runtime_error.cpp: test what would happen if we catch exception or not after throwing runtime_error("a = 0!").
 <li> stdPrinter.c: write() is C function without I/O buffer, we can use it and usleep to print more interestingly.
+<li> DbusTest: Dbus using example based on GDbus (GLib)
