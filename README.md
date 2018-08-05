@@ -14,3 +14,4 @@ This folder stores some C/C++ libraries and simple examples.
 <li> DbusTest: Dbus using example based on GDbus (GLib)
 <li> LambdaExpression: some cases of c plus plus lambda expresion.
 <li> CCallBack.c: this is a simple C call back function using example.
+<li> binary_function.cpp: use binary_function to write simple class to define self comparison function.
