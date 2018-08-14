@@ -15,3 +15,4 @@ This folder stores some C/C++ libraries and simple examples.
 <li> LambdaExpression: some cases of c plus plus lambda expresion.
 <li> CCallBack.c: this is a simple C call back function using example.
 <li> binary_function.cpp: use binary_function to write simple class to define self comparison function.
+<li> VTKLearn: the folder contains some basic cases that for us to learn VTK, some cases use qt.
