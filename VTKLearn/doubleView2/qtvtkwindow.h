@@ -4,6 +4,10 @@
 #include <QDialog>
 #include <vtkSmartPointer.h>
 #include <vtkEventQtSlotConnect.h>
+#include <vtkNamedColors.h>
+#include <vtkInteractorStyleTrackballCamera.h>
+
+#include "doubleViewInteractorStyle.h"
 
 namespace Ui {
 class QtVTKWindow;
@@ -19,7 +23,9 @@ public:
 
 private:
     Ui::QtVTKWindow *ui;
-    vtkSmartPointer<vtkEventQtSlotConnect> m_VtkConnectQt;
+    vtkSmartPointer<DoubleViewInteractorStyle> rightInteractorStyle;
+    vtkSmartPointer<DoubleViewInteractorStyle> leftInteractorStyle;
+    vtkSmartPointer<vtkNamedColors> winBackColor;
 };
 
 #endif // QTVTKWINDOW_H

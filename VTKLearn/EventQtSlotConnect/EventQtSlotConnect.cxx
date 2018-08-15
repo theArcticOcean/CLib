@@ -10,6 +10,7 @@
 #include <vtkEventQtSlotConnect.h>
 #include <vtkInteractorStyleTrackballActor.h>
 #include <QMessageBox>
+#include <vtkInteractorStyleTrackballCamera.h>
 
 // Constructor
 EventQtSlotConnect::EventQtSlotConnect()
@@ -36,6 +37,11 @@ EventQtSlotConnect::EventQtSlotConnect()
     // sphereSource ==> vtkPolyDataMapper ==> vtkActor ==> vtkRenderer ==> renderWindow
 
     this->qvtkWidget->GetRenderWindow()->AddRenderer(renderer);
+
+    vtkSmartPointer<vtkInteractorStyleTrackballCamera> style =
+      vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
+
+    this->qvtkWidget->GetRenderWindow()->GetInteractor()->SetInteractorStyle( style );
 
     this->Connections->Connect(this->qvtkWidget->GetRenderWindow()->GetInteractor(),
     vtkCommand::LeftButtonPressEvent,

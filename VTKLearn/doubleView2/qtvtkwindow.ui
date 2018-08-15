@@ -6,33 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>519</width>
-    <height>383</height>
+    <width>540</width>
+    <height>301</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QVTKWidget" name="leftQvtkWidget">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>241</width>
-     <height>361</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QVTKWidget" name="rightQvtkWidget">
-   <property name="geometry">
-    <rect>
-     <x>250</x>
-     <y>10</y>
-     <width>251</width>
-     <height>361</height>
-    </rect>
-   </property>
-  </widget>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QVTKWidget" name="leftQvtkWidget" native="true"/>
+   </item>
+   <item row="0" column="1">
+    <widget class="QVTKWidget" name="rightQvtkWidget" native="true"/>
+   </item>
+  </layout>
  </widget>
  <customwidgets>
   <customwidget>
