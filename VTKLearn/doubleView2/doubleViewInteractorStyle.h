@@ -10,8 +10,12 @@ public:
     static DoubleViewInteractorStyle* New();
     vtkTypeMacro( DoubleViewInteractorStyle, vtkInteractorStyleTrackballCamera )
     void fetchStyle( DoubleViewInteractorStyle *_theOtherStyle );
+    void OnMouseMove() override;
     void Rotate() override;
     void Spin() override;
+    void Dolly() override;
+    void FatherDolly( double factor );
+    void Pan() override;
 private:
     DoubleViewInteractorStyle();
     DoubleViewInteractorStyle *theOtherStyle;

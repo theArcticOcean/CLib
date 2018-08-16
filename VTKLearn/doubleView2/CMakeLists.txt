@@ -13,6 +13,7 @@ file(GLOB UI_FILES *.ui)
 
 file(GLOB QT_WRAP
     *.h
+    *.hpp
     #${QTSRC_DIR}/5.9.2/clang_64/lib/QtDesigner.framework/Versions/5/Headers/*
     #${VTKSRC_DIR}/*/*/*.h
     )
