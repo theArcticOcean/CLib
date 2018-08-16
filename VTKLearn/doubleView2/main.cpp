@@ -14,13 +14,17 @@
 #include <vtkConeSource.h>
 
 #include <QApplication>
+#include <QDebug>
 
+#include "logprinter.hpp"
 #include "qtvtkwindow.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
+    //LogInit();
+    //qInstallMessageHandler( LogBase );
     QtVTKWindow win;
     win.show();
 
