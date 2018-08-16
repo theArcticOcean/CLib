@@ -14,7 +14,7 @@ using namespace std;
 /*
  * Z: 向屏幕外为正。
  * Y: 窗口顶部到顶部为正方向
- * X:
+ * X: 向右为正方向
  */
 int main()
 {
