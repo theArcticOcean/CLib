@@ -11,6 +11,7 @@ public:
     vtkTypeMacro( DoubleViewInteractorStyle, vtkInteractorStyleTrackballCamera )
     void fetchStyle( DoubleViewInteractorStyle *_theOtherStyle );
     void Rotate() override;
+    void Spin() override;
 private:
     DoubleViewInteractorStyle();
     DoubleViewInteractorStyle *theOtherStyle;

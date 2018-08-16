@@ -16,7 +16,8 @@ void DoubleViewInteractorStyle::fetchStyle(DoubleViewInteractorStyle *_theOtherS
 
 void DoubleViewInteractorStyle::Rotate()
 {
-    if ( this->CurrentRenderer == nullptr )
+    if ( this->CurrentRenderer == nullptr ||
+         nullptr == theOtherStyle->CurrentRenderer )
     {
         return;
     }
@@ -81,6 +82,37 @@ void DoubleViewInteractorStyle::Rotate()
         theOtherStyle->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
     }
     rwi2->Render();
+}
+
+void DoubleViewInteractorStyle::Spin()
+{
+    if ( nullptr == this->CurrentRenderer ||
+         nullptr == theOtherStyle->CurrentRenderer )
+    {
+        return;
+    }
+
+    vtkRenderWindowInteractor *rwi = this->Interactor;
+
+    double *center = this->CurrentRenderer->GetCenter();
+
+    double newAngle =
+      vtkMath::DegreesFromRadians( atan2( rwi->GetEventPosition()[1] - center[1],
+                                          rwi->GetEventPosition()[0] - center[0] ) );
+
+    double oldAngle =
+      vtkMath::DegreesFromRadians( atan2( rwi->GetLastEventPosition()[1] - center[1],
+                                          rwi->GetLastEventPosition()[0] - center[0] ) );
+
+    vtkCamera *camera1 = this->CurrentRenderer->GetActiveCamera();
+    camera1->Roll( newAngle - oldAngle );
+    camera1->OrthogonalizeViewUp();
+
+    vtkCamera *camera2 = theOtherStyle->CurrentRenderer->GetActiveCamera();
+    camera2->Roll( newAngle - oldAngle );
+    camera2->OrthogonalizeViewUp();
+
+    rwi->Render();
 }
 
 DoubleViewInteractorStyle::DoubleViewInteractorStyle()
