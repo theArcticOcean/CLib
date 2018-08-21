@@ -5,6 +5,7 @@
 #include <vtkActor.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
+#include <vtkProperty.h>
 #include <vtkRenderWindowInteractor.h>
 
 int main ( int argc, char *argv[] )
@@ -29,6 +30,7 @@ int main ( int argc, char *argv[] )
 
     vtkSmartPointer<vtkActor> actor =
     vtkSmartPointer<vtkActor>::New();
+    actor->GetProperty()->SetColor( 0, 1, 0 );
     actor->SetMapper(mapper);
 
     vtkSmartPointer<vtkRenderer> renderer =
