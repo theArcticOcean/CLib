@@ -38,13 +38,16 @@ int main()
     ostream out( std::cout.rdbuf() );
     matrix->PrintSelf( out, *vtkIndent::New() );
 
+    //axes->RotateZ( 45 ); // This does not work.
+    //transform->RotateZ( 45 );
+    transform->RotateX( 45 );
     //transform->RotateWXYZ( 90, 1, 0, 0 );
-    matrix = transform2->GetMatrix();
 
+    matrix = transform2->GetMatrix();
+    // transform2 and transform1 have the same transform matrix.
     cout << "---------------------------------\n";
     ostream out1( std::cout.rdbuf() );
     matrix->PrintSelf( out1, *vtkIndent::New() );
-
 
     vtkSmartPointer<vtkRenderer> renderer =
         vtkSmartPointer<vtkRenderer>::New();
