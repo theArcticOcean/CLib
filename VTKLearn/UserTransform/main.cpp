@@ -8,9 +8,13 @@
 #include <vtkAxesActor.h>
 #include <vtkTransform.h>
 #include <vtkSmartPointer.h>
+#include <vtkPlaneSource.h>
+#include <vtkProperty.h>
 
 #include <ostream>
 #include <iostream>
+#include <unistd.h>
+#include <QDebug>
 using namespace std;
 
 int main()
@@ -19,9 +23,16 @@ int main()
         vtkSmartPointer<vtkTransform>::New();
     transform->PreMultiply();
 
-    vtkSmartPointer<vtkAxesActor> axes =
-        vtkSmartPointer<vtkAxesActor>::New();
-    axes->SetUserTransform(transform);
+    vtkSmartPointer<vtkPlaneSource> planeSource =
+            vtkSmartPointer<vtkPlaneSource>::New();
+    vtkSmartPointer<vtkPolyDataMapper> planeMapper =
+            vtkSmartPointer<vtkPolyDataMapper>::New();
+    planeMapper->SetInputConnection(planeSource->GetOutputPort());
+    vtkSmartPointer<vtkActor> planeActor =
+            vtkSmartPointer<vtkActor>::New();
+    planeActor->SetMapper( planeMapper );
+    planeActor->GetProperty()->SetColor( 1, 0, 0 );
+    planeActor->SetUserTransform(transform);
 
 //* the three basic linear transformations
 //*/
@@ -31,38 +42,56 @@ int main()
 
     vtkSmartPointer<vtkTransform> transform2 =
         vtkSmartPointer<vtkTransform>::New();
-    transform2->SetInput( axes->GetUserTransform() );
+    transform2->SetInput( planeActor->GetUserTransform() );
     vtkMatrix4x4 *matrix = transform2->GetMatrix();
 
     cout << "---------------------------------\n";
     ostream out( std::cout.rdbuf() );
     matrix->PrintSelf( out, *vtkIndent::New() );
 
-    //axes->RotateZ( 45 ); // This does not work.
-    //transform->RotateZ( 45 );
-    transform->RotateX( 45 );
     //transform->RotateWXYZ( 90, 1, 0, 0 );
-
+    //transform->RotateX( 135 );
+    //transform->RotateZ( 45 );
     matrix = transform2->GetMatrix();
-    // transform2 and transform1 have the same transform matrix.
+
     cout << "---------------------------------\n";
     ostream out1( std::cout.rdbuf() );
     matrix->PrintSelf( out1, *vtkIndent::New() );
+
 
     vtkSmartPointer<vtkRenderer> renderer =
         vtkSmartPointer<vtkRenderer>::New();
     vtkSmartPointer<vtkRenderWindow> renderWindow =
         vtkSmartPointer<vtkRenderWindow>::New();
     renderWindow->AddRenderer(renderer);
-    vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
-        vtkSmartPointer<vtkRenderWindowInteractor>::New();
-    renderWindowInteractor->SetRenderWindow(renderWindow);
+//    vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
+//        vtkSmartPointer<vtkRenderWindowInteractor>::New();
+//    renderWindowInteractor->SetRenderWindow(renderWindow);
     renderer->SetBackground(.1, .2, .3);
 
-    renderer->AddActor(axes);
+    renderer->AddActor(planeActor);
     renderer->ResetCamera();
     renderWindow->Render();
-    renderWindowInteractor->Start();
+    //renderWindowInteractor->Start();
+
+    transform2->RotateZ( 45 );
+    planeActor->SetUserTransform( transform2 );
+
+    int i;
+    for (i = 0; i < 90; ++i)
+    {
+      // render the image
+      //transform2->RotateX( 5 );
+      transform2->RotateY( 5 );
+      planeActor->SetUserTransform( transform2 );
+      renderWindow->Render();
+      usleep( 200000 );
+      matrix = transform2->GetMatrix();
+
+      qDebug() << "---------------------------------\n";
+      ostream out1( std::cout.rdbuf() );
+      matrix->PrintSelf( out1, *vtkIndent::New() );
+    }
 
     return 0;
 }
