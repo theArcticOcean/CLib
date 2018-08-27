@@ -10,6 +10,8 @@
 
 int main ( int argc, char *argv[] )
 {
+// start run
+
     if ( argc != 2 )
     {
     cout << "Required parameters: Filename" << endl;
@@ -41,7 +43,8 @@ int main ( int argc, char *argv[] )
     vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
     renderWindowInteractor->SetRenderWindow(renderWindow);
-
+    actor->SetPosition( 0 , 10,  0 );
+    //actor->SetUserTransform();
     renderer->AddActor(actor);
     renderer->SetBackground(0, 0, 0); // Background color green
 
