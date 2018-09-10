@@ -18,4 +18,4 @@ This folder stores some C/C++ libraries and simple examples.
 <li> VTKLearn: the folder contains some basic cases that for us to learn VTK, some cases use qt.
 <li> MSVCLogprinter: the folder has example that provides logprinter to output log in file with MSVC
 this is git test1
-
+changed in Mac
