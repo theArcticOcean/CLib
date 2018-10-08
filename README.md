@@ -16,4 +16,4 @@ This folder stores some C/C++ libraries and simple examples.
 <li> CCallBack.c: this is a simple C call back function using example.
 <li> binary_function.cpp: use binary_function to write simple class to define self comparison function.
 <li> VTKLearn: the folder contains some basic cases that for us to learn VTK, some cases use qt.
-<li> MSVCLogprinter: the folder has example that provides logprinter to output log in file with MSVC
+<li> MSVCLogprinter: the folder has example that provides logprinter to output log in file with MSVC.
