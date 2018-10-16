@@ -17,3 +17,4 @@ This folder stores some C/C++ libraries and simple examples.
 <li> binary_function.cpp: use binary_function to write simple class to define self comparison function.
 <li> VTKLearn: the folder contains some basic cases that for us to learn VTK, some cases use qt.
 <li> MSVCLogprinter: the folder has example that provides logprinter to output log in file with MSVC.
+<li> CPPDisableCopy: an example that disable copy class object.
