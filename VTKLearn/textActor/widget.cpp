@@ -51,7 +51,7 @@ Widget::~Widget()
 
 void Widget::on_pushButton_clicked()
 {
-    textActor->SetInput( "hello\nhello\nhello" );
+    textActor->SetInput( "hello\nworld\nmac" );
 
     double size[2];
     vtkRendererCollection *rendererCollection = ui->qvtkWidget->GetRenderWindow()->GetRenderers();
