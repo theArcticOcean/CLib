@@ -19,6 +19,7 @@ Widget::Widget(QWidget *parent) :
             vtkSmartPointer<vtkPolyDataMapper>::New();
     coneMapper->SetInputConnection( cone->GetOutputPort() );
     coneActor->SetMapper( coneMapper );
+
     vtkSmartPointer<vtkRenderer> backRenderer =
             vtkSmartPointer<vtkRenderer>::New();
     backRenderer->AddActor( coneActor );
@@ -26,6 +27,7 @@ Widget::Widget(QWidget *parent) :
 
     textActor->SetInput( "hello" );
     textActor->GetProperty()->SetColor( 1, 0, 0 );
+    textActor->SetPosition( 0, 10 );
     backRenderer->AddActor( textActor );
 
     vtkSmartPointer<vtkGenericOpenGLRenderWindow> backWindow =
@@ -56,5 +58,6 @@ void Widget::on_pushButton_clicked()
     vtkRenderer *renderer = rendererCollection->GetFirstRenderer();
     textActor->GetSize( renderer, size );
     printf( "size: %lf, %lf\n", size[0], size[1] );
-    renderer->Render();
+    //renderer->Render();
+    ui->qvtkWidget->GetRenderWindow()->Render();
 }
