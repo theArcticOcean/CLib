@@ -18,3 +18,4 @@ This folder stores some C/C++ libraries and simple examples.
 <li> VTKLearn: the folder contains some basic cases that for us to learn VTK, some cases use qt.
 <li> MSVCLogprinter: the folder has example that provides logprinter to output log in file with MSVC.
 <li> CPPDisableCopy: an example that disable copy class object.
+<li> ArchClip: an example that clip 3D model by plane based on VTK and Qt
