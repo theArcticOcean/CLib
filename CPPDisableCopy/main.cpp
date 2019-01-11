@@ -6,22 +6,27 @@ class Cat
 {
 
 public:
-    Cat(int a){ num = a; }
+    Cat(){ }
 
 //Private effect: 'Cat::Cat' : cannot access private member declared in class 'Cat'
 private:
-
     //delete effect: 'Cat::Cat(const Cat &)' : attempting to reference a deleted function
     Cat(const Cat &) = delete;
     Cat &operator = ( const Cat & ) = delete;
 
-    int num;
+    void test(){  }
+};
+
+class Driver: public Cat
+{
+public:
+    Driver(){ }
 };
 
 int main(int argc, char *argv[])
 {
-    Cat c1( 0 );
- //   Cat c2( c1 );
- //   Cat c2 = c1;
+    Cat c1;
+    Driver d1;
+    //    Driver d2 = d1;  //'Cat::Cat' : cannot access private member declared in class 'Cat'
     return 0;
 }
