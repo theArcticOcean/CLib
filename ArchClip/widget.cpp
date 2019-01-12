@@ -12,13 +12,27 @@
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Widget),
+    m_STLReader( vtkSmartPointer<vtkSTLReader>::New() ),
     m_Renderer( vtkSmartPointer<vtkRenderer>::New() ),
     m_RenderWindow( vtkSmartPointer<vtkRenderWindow>::New() ),
     m_ClipPlane( vtkSmartPointer<vtkPlane>::New() ),
-    m_ClipPlaneNormal( PointStruct( 0, 0, 1 ) )
+    m_ArchActor( vtkSmartPointer<vtkActor>::New() ),
+    m_SelectActor( vtkSmartPointer<vtkActor>::New() ),
+    m_Clipper( vtkSmartPointer<vtkClipPolyData>::New() ),
+    m_SelectMapper( vtkSmartPointer<vtkPolyDataMapper>::New() ),
+    m_PlaneWidget( vtkSmartPointer<vtkImplicitPlaneWidget>::New() ),
+    m_ClipPlaneNormal( PointStruct( 0, 0, 1 ) ),
+    m_LastValue( 0 )
 {
     ui->setupUi(this);
     loadSTLFile();
+
+    double *bounds = m_ArchActor->GetBounds();
+    printf( "bounds: (%lf, %lf, %lf, %lf, %lf, %lf)\n",
+            bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5] );
+    m_ZLength = bounds[5] - bounds[4];
+
+    clipSetting();
 }
 
 Widget::~Widget()
@@ -29,6 +43,13 @@ Widget::~Widget()
 void Widget::on_verticalSlider_valueChanged(int value)
 {
     qDebug() << "valueChanged: " << value;
+
+    int dif = value - m_LastValue;
+    PointStruct origin( m_ClipPlane->GetOrigin() );
+    origin = origin - m_ClipPlaneNormal * m_ZLength * dif / 100.0;
+    m_ClipPlane->SetOrigin( origin.point );
+    m_LastValue = value;
+    ui->qvtkWidget->GetRenderWindow()->Render();
 }
 
 void Widget::loadSTLFile()
@@ -37,25 +58,29 @@ void Widget::loadSTLFile()
     dir = dir + "/LingerBar.stl";
     qDebug() << "dir: " << dir;
 
-    vSPNew(STLReader, vtkSTLReader);
-    STLReader->SetFileName( dir.toStdString().c_str() );
-    STLReader->Update();
+    m_STLReader->SetFileName( dir.toStdString().c_str() );
+    m_STLReader->Update();
 
+    vSPNew(archMapper, vtkPolyDataMapper);
+    archMapper->SetInputConnection( m_STLReader->GetOutputPort() );
+
+    m_ArchActor->SetMapper( archMapper );
+}
+
+void Widget::clipSetting()
+{
     m_ClipPlane->SetNormal( m_ClipPlaneNormal.point );
-    m_ClipPlane->SetOrigin( 0.0, 0.0, 0.0 );
+    m_ClipPlane->SetOrigin( 0.0, 0.0, m_ZLength/2 );
 
-    vSPNew(clip, vtkClipPolyData);
-    clip->SetInputConnection( STLReader->GetOutputPort() );
-    clip->SetClipFunction( m_ClipPlane );
-    clip->InsideOutOn();
+    m_Clipper->SetInputConnection( m_STLReader->GetOutputPort() );
+    m_Clipper->SetClipFunction( m_ClipPlane );
+    m_Clipper->InsideOutOn();
 
-    vSPNew(selectMapper, vtkPolyDataMapper);
-    selectMapper->SetInputConnection( clip->GetOutputPort() );
+    m_SelectMapper->SetInputConnection( m_Clipper->GetOutputPort() );
 
-    vSPNew(selectActor, vtkActor);
-    selectActor->SetMapper( selectMapper );
+    m_SelectActor->SetMapper( m_SelectMapper );
 
-    m_Renderer->AddActor( selectActor );
+    m_Renderer->AddActor( m_SelectActor );
     m_RenderWindow->AddRenderer( m_Renderer );
 
     ui->qvtkWidget->SetRenderWindow( m_RenderWindow );

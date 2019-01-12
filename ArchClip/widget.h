@@ -6,6 +6,10 @@
 #include <vtkSmartPointer.h>
 #include <vtkRenderWindow.h>
 #include <vtkPlane.h>
+#include <vtkClipPolyData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkImplicitPlaneWidget.h>
+#include <vtkSTLReader.h>
 
 #include "Tools.h"
 
@@ -29,12 +33,21 @@ private slots:
 
 private:
     void loadSTLFile();
+    void clipSetting();
 
     Ui::Widget *ui;
+    vSP<vtkSTLReader> m_STLReader;
     vSP<vtkRenderer> m_Renderer;
     vSP<vtkRenderWindow> m_RenderWindow;
     vSP<vtkPlane> m_ClipPlane;
+    vSP<vtkActor> m_ArchActor;
+    vSP<vtkActor> m_SelectActor;
+    vSP<vtkClipPolyData> m_Clipper;
+    vSP<vtkPolyDataMapper> m_SelectMapper;
+    vSP<vtkImplicitPlaneWidget> m_PlaneWidget;
     PointStruct m_ClipPlaneNormal;
+    int m_LastValue;
+    double m_ZLength;
 };
 
 #endif // Window_H
