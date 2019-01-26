@@ -19,3 +19,4 @@ This folder stores some C/C++ libraries and simple examples.
 <li> MSVCLogprinter: the folder has example that provides logprinter to output log in file with MSVC.
 <li> CPPDisableCopy: an example that disable copy class object.
 <li> ArchClip: an example that clip 3D model by plane based on VTK and Qt
+<li> OpenCTM: some examples which use OpenCTM library to compress 3D mesh
