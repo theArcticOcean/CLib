@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdio.h>
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
 #include <vtkActor.h>
@@ -23,15 +24,22 @@ using namespace std;
 void MySaveFile(CTMuint aVertCount, CTMuint aTriCount, CTMfloat * aVertices,
    CTMuint * aIndices, const char * aFileName)
 {
-    // Create a new OpenCTM exporter object
-    CTMexporter ctm;
+    try
+    {
+        // Create a new OpenCTM exporter object
+        CTMexporter ctm;
 
-    // Define our mesh representation to OpenCTM (store references to it in
-    // the context)
-    ctm.DefineMesh(aVertices, aVertCount, aIndices, aTriCount, NULL);
+        // Define our mesh representation to OpenCTM (store references to it in
+        // the context)
+        ctm.DefineMesh(aVertices, aVertCount, aIndices, aTriCount, NULL);
 
-    // Save the OpenCTM file
-    ctm.Save(aFileName);
+        // Save the OpenCTM file
+        ctm.Save(aFileName);
+    }
+    catch(exception &e)
+    {
+        fprintf( stderr, "[%s, %d]: Error => %s\n", __FILE__, __LINE__, e.what( ) );
+    }
 }
 
 int main()
@@ -70,6 +78,8 @@ int main()
     aVertices = nullptr;
     delete [] aIndices;
     aIndices = nullptr;
+
+
 
     vtkSmartPointer<vtkPolyDataMapper> mapper =
             vtkSmartPointer<vtkPolyDataMapper>::New();
