@@ -9,12 +9,11 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkLight.h>
 #include <vtkCamera.h>
-#include <vtkActor2D.h>
 #include <vtkPolyData.h>
 #include <string>
-
+#include <vtkTriangleFilter.h>
+#include <vtkSTLWriter.h>
 
 #include "tool.h"
 #include "openctmpp.h"
@@ -48,7 +47,13 @@ int main()
             vtkSmartPointer<vtkConeSource>::New();
     cone->Update();
 
-    vtkPolyData *pd = cone->GetOutput();
+    // -------------- OpenCTM save data ---------------
+    vtkSmartPointer<vtkTriangleFilter> triangle =
+            vtkSmartPointer<vtkTriangleFilter>::New();
+    triangle->SetInputData( cone->GetOutput() );
+    triangle->Update();
+
+    vtkPolyData *pd = triangle->GetOutput();
     vtkPoints *points = pd->GetPoints();
 
     CTMuint aVertCount = static_cast<unsigned int>( points->GetNumberOfPoints() );
@@ -78,8 +83,15 @@ int main()
     aVertices = nullptr;
     delete [] aIndices;
     aIndices = nullptr;
+    // -------------- Finish: OpenCTM save data ---------------
 
-
+    // -------------- stl writer ---------------
+    vtkSmartPointer<vtkSTLWriter> stlWriter =
+            vtkSmartPointer<vtkSTLWriter>::New();
+    stlWriter->AddInputConnection(cone->GetOutputPort());
+    stlWriter->SetFileName( "cone.stl" );
+    stlWriter->Write();
+    // -------------- Finish: stl writer ---------------
 
     vtkSmartPointer<vtkPolyDataMapper> mapper =
             vtkSmartPointer<vtkPolyDataMapper>::New();
