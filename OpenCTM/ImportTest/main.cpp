@@ -6,6 +6,7 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkPolyData.h>
+#include <string>
 
 #include "openctmpp.h"
 #include "tool.h"
@@ -20,10 +21,12 @@ int main()
             vtkSmartPointer<vtkPoints>::New();
     vtkSmartPointer<vtkCellArray> cells =
             vtkSmartPointer<vtkCellArray>::New();
+    //string file = "/Users/weiyang/pro/CLib/OpenCTM/ExportTest/qt-ExportTest-Default/cone.ctm";
+    string file = "/Users/weiyang/pro/CLib/OpenCTM/Compression/qt-Compression-Default/LingerBar2.ctm";
 
     try {
         CTMimporter ctm;
-        ctm.Load( "/Users/weiyang/pro/CLib/OpenCTM/ExportTest/qt-ExportTest-Default/cone.ctm" );
+        ctm.Load( file.c_str() );
 
         CTMuint vertCount = ctm.GetInteger(CTM_VERTEX_COUNT);
         const CTMfloat *vertices = ctm.GetFloatArray(CTM_VERTICES);
