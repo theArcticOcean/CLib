@@ -12,6 +12,8 @@ add_executable( ${PROJECT_NAME}
     "VertexActor.cpp"
     "FourSidesCone.h"
     "FourSidesCone.cpp"
-    "tool.h" )
+    "tool.h"
+    "WInteractorStyle.cpp"
+    "WInteractorStyle.h" )
 
 target_link_libraries( ${PROJECT_NAME} ${VTK_LIBRARIES} )

@@ -12,19 +12,22 @@
 #include <vtkCamera.h>
 #include <vtkPolyDataAlgorithm.h>
 
+#include "WInteractorStyle.h"
 #include "FourSidesCone.h"
 
 using namespace std;
 
 int main()
 {
+    setbuf( stdout, nullptr );
+
     vtkSmartPointer<FourSidesCone> cone =
             vtkSmartPointer<FourSidesCone>::New();
     cone->Update();
 
     vtkSmartPointer<vtkPolyDataMapper> mapper =
             vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapper->SetInputConnection( cone->GetOutputPort() );
+    mapper->SetInputData( cone->GetOutput() );
 
     vtkSmartPointer<vtkActor> actor =
             vtkSmartPointer<vtkActor>::New();
@@ -33,6 +36,7 @@ int main()
     vtkSmartPointer<vtkRenderer> renderer =
             vtkSmartPointer<vtkRenderer>::New();
     renderer->AddActor( actor );
+    cone->Setm_ConeActor( actor );
     renderer->AddActor( cone->FetchVertexActor(0) );
     renderer->AddActor( cone->FetchVertexActor(1) );
     renderer->AddActor( cone->FetchVertexActor(2) );
@@ -45,8 +49,14 @@ int main()
             vtkSmartPointer<vtkRenderWindow>::New();
     renderWindow->AddRenderer( renderer );
 
+    vSPNew(interactorStyle, WInteractorStyle);
+    interactorStyle->Setm_Cone( cone );
+    interactorStyle->Setm_Render( renderer );
+    interactorStyle->Setm_RenderWindow( renderWindow );
+
     vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
             vtkSmartPointer<vtkRenderWindowInteractor>::New();
+    renderWindowInteractor->SetInteractorStyle( interactorStyle );
     renderWindowInteractor->SetRenderWindow( renderWindow );
 
     renderer->ResetCamera();

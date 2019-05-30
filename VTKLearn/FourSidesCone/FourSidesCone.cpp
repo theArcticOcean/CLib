@@ -3,6 +3,8 @@
 #include <vtkInformationVector.h>
 #include <vtkInformation.h>
 #include <vtkProperty.h>
+#include <vtkMapper.h>
+#include <vtkPolyDataMapper.h>
 
 vtkStandardNewMacro(FourSidesCone);
 
@@ -15,6 +17,7 @@ void FourSidesCone::VertexPointsInital()
 {
     m_VertexActors->RemoveAllItems();
     m_VertextPositions.clear();
+    m_VertexPicker->InitializePickList();
 
     int i = 0;
     vSPNew( vertex0, VertexActor );
@@ -23,6 +26,7 @@ void FourSidesCone::VertexPointsInital()
     vertex0->GetProperty()->SetColor( 1, 0, 0 );
     vertex0->Setm_ActorId( i );
     m_VertexActors->AddItem( vertex0 );
+    m_VertexPicker->AddPickList( vertex0 );
     i++;
 
     vSPNew( vertex1, VertexActor );
@@ -30,6 +34,7 @@ void FourSidesCone::VertexPointsInital()
     vertex1->GetProperty()->SetColor( 0, 1, 0 );
     vertex1->UpdatePos( m_VertextPositions[i] );
     vertex1->Setm_ActorId( i );
+    m_VertexPicker->AddPickList( vertex1 );
     m_VertexActors->AddItem( vertex1 );
     i++;
 
@@ -38,6 +43,7 @@ void FourSidesCone::VertexPointsInital()
     vertex2->GetProperty()->SetColor( 0, 0, 1 );
     vertex2->UpdatePos( m_VertextPositions[i] );
     vertex2->Setm_ActorId( i );
+    m_VertexPicker->AddPickList( vertex2 );
     m_VertexActors->AddItem( vertex2 );
     i++;
 
@@ -46,6 +52,7 @@ void FourSidesCone::VertexPointsInital()
     vertex3->GetProperty()->SetColor( 1, 1, 0 );
     vertex3->UpdatePos( m_VertextPositions[i] );
     vertex3->Setm_ActorId( i );
+    m_VertexPicker->AddPickList( vertex3 );
     m_VertexActors->AddItem( vertex3 );
     i++;
 
@@ -54,8 +61,30 @@ void FourSidesCone::VertexPointsInital()
     vertex4->GetProperty()->SetColor( 1, 0, 1 );
     vertex4->UpdatePos( m_VertextPositions[i] );
     vertex4->Setm_ActorId( i );
+    m_VertexPicker->AddPickList( vertex4 );
     m_VertexActors->AddItem( vertex4 );
     i++;
+
+    m_VertexPicker->PickFromListOn();
+}
+
+void FourSidesCone::UpdateConeShape()
+{
+    vtkPoints *points = m_OutputPolydata->GetPoints();
+    // don't set point by pointer points->GetPoint(i)
+    for( int i = 0; i < 5; ++i )
+    {
+        vtkActor *actor = FetchVertexActor(i);
+        PointStruct centerPos( actor->GetCenter() );
+        points->SetPoint( i, centerPos.point );
+        //printf( "%d point: (%lf, %lf, %lf)\n", i, centerPos[0], centerPos[1], centerPos[2] );
+    }
+
+    m_OutputPolydata->Modified();
+    vSPNew( polyDataMapper, vtkPolyDataMapper );
+    polyDataMapper->SetInputData( m_OutputPolydata );
+
+    m_ConeActor->SetMapper( polyDataMapper );
 }
 
 int FourSidesCone::RequestData(vtkInformation *vtkNotUsed(request),
@@ -93,6 +122,7 @@ int FourSidesCone::RequestData(vtkInformation *vtkNotUsed(request),
     face[0] = 0; face[1] = 3; face[2] = 4;
     newFaces->InsertNextCell( 3, face );
     output->SetPolys( newFaces );
+    m_OutputPolydata = output;
 
     newPoints->Delete();
     newFaces->Delete();
@@ -103,10 +133,13 @@ int FourSidesCone::RequestData(vtkInformation *vtkNotUsed(request),
 FourSidesCone::FourSidesCone()
 {
     m_VertexActors = vSP<vtkActorCollection>::New();
+    m_VertexPicker = vSP<vtkCellPicker>::New();
     this->SetNumberOfInputPorts( 0 );
+    m_OutputPolydata = nullptr;
+    m_ConeActor = nullptr;
 }
 
-vtkActor *FourSidesCone::FetchVertexActor( const int index )
+vtkActor *FourSidesCone::FetchVertexActor( const vtkIdType index )
 {
     m_VertexActors->InitTraversal();
     if( index >= m_VertexActors->GetNumberOfItems() )
