@@ -21,3 +21,4 @@ This folder stores some C/C++ libraries and simple examples.
 <li> ArchClip: an example that clip 3D model by plane based on VTK and Qt
 <li> OpenCTM: some examples which use OpenCTM library to compress 3D mesh
 <li> CheckFolderChange.cpp: use sha256 to check whether the files in folder are changed.
+<li> UpdateJson.cpp: Change all picture's path, from Setting Data1/photo => Photo path
