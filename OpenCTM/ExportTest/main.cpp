@@ -31,6 +31,8 @@ void MySaveFile(CTMuint aVertCount, CTMuint aTriCount, CTMfloat * aVertices,
         // Define our mesh representation to OpenCTM (store references to it in
         // the context)
         ctm.DefineMesh(aVertices, aVertCount, aIndices, aTriCount, NULL);
+//        ctm.CompressionMethod( CTM_METHOD_MG2 );
+//        ctm.CompressionLevel( 9 );
 
         // Save the OpenCTM file
         ctm.Save(aFileName);
@@ -38,6 +40,22 @@ void MySaveFile(CTMuint aVertCount, CTMuint aTriCount, CTMfloat * aVertices,
     catch(exception &e)
     {
         fprintf( stderr, "[%s, %d]: Error => %s\n", __FILE__, __LINE__, e.what( ) );
+    }
+}
+
+void saveIdCoordinate( vtkPolyData *polyData  )
+{
+    setbuf( stdout, nullptr );
+    printf( "saveIdCoordinate\n" );
+    if( freopen("info.txt", "w", stdout) )
+    {
+        vtkPoints *pts = polyData->GetPoints();
+        for( int i = 0; i < pts->GetNumberOfPoints(); ++i )
+        {
+            PointStruct pt( pts->GetPoint( i ) );
+            printf( "id: %d, (%lf, %lf, %lf)\n", i, pt[0], pt[1], pt[2] );
+        }
+        fclose( stdout );
     }
 }
 
@@ -55,6 +73,8 @@ int main()
 
     vtkPolyData *pd = triangle->GetOutput();
     vtkPoints *points = pd->GetPoints();
+
+    saveIdCoordinate( pd );
 
     CTMuint aVertCount = static_cast<unsigned int>( points->GetNumberOfPoints() );
     CTMfloat *aVertices = new CTMfloat[3*aVertCount];

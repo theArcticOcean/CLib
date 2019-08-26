@@ -7,11 +7,29 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkPolyData.h>
 #include <string>
+#include <time.h>
 
 #include "openctmpp.h"
 #include "tool.h"
 
 using namespace std;
+
+void saveIdCoordinate( vtkPolyData *polyData  )
+{
+    setbuf( stdout, nullptr );
+    printf( "saveIdCoordinate\n" );
+    if( freopen("info.txt", "w", stdout) )
+    {
+        vtkPoints *pts = polyData->GetPoints();
+        for( int i = 0; i < pts->GetNumberOfPoints(); ++i )
+        {
+            PointStruct pt( pts->GetPoint( i ) );
+            printf( "id: %d, (%lf, %lf, %lf)\n", i, pt[0], pt[1], pt[2] );
+        }
+        printf( "GetNumberOfCells: %d\n", polyData->GetNumberOfCells() );
+        fclose( stdout );
+    }
+}
 
 int main()
 {
@@ -24,6 +42,7 @@ int main()
     //string file = "/Users/weiyang/pro/CLib/OpenCTM/ExportTest/qt-ExportTest-Default/cone.ctm";
     string file = "/Users/weiyang/pro/CLib/OpenCTM/Compression/qt-Compression-Default/LingerBar2.ctm";
 
+    clock_t beginT = clock();
     try {
         CTMimporter ctm;
         ctm.Load( file.c_str() );
@@ -58,6 +77,11 @@ int main()
     {
         fprintf( stderr, "[%s, %d]: Error => %s\n", __FILE__, __LINE__, e.what( ) );
     }
+    clock_t endT = clock();
+    double duration = 1.0 * (endT - beginT) / CLOCKS_PER_SEC;
+    cout << "ctm read duration: " << duration << endl;
+
+    saveIdCoordinate( polyData.Get() );
 
     vtkSmartPointer<vtkPolyDataMapper> polyDataMapper =
             vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -84,3 +108,6 @@ int main()
     renderWindowInteractor->Start();
     return 0;
 }
+/*
+ctm read duration: 0.202797
+*/
