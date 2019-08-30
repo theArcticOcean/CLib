@@ -20,8 +20,10 @@
 #include <vtkParametricFunctionSource.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <QString>
+#include <vtkTextActor.h>
 #include <QDebug>
-
+#include <vtkCaptionActor2D.h>
+#include <vtkTextProperty.h>
 #include "vtkCustomStyle.h"
 
 using namespace std;
@@ -47,6 +49,7 @@ int main()
     renderWindowInteractor->SetRenderWindow( renderWindow );
 
     vtkPtr( axes, vtkAxesActor );
+    axes->SetTotalLength( 1, 1, 1 ); // change length of three axis
     vtkPtr( cellPicker, vtkCellPicker );
 
     vtkPtr(parametricTorus, vtkParametricTorus);
