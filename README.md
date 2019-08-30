@@ -22,3 +22,4 @@ This folder stores some C/C++ libraries and simple examples.
 <li> OpenCTM: some examples which use OpenCTM library to compress 3D mesh
 <li> CheckFolderChange.cpp: use sha256 to check whether the files in folder are changed.
 <li> UpdateJson.cpp: Change all picture's path, from Setting Data1/photo => Photo path
+<li> AxisActor: show axis actor, three ring to rotate the cone.
