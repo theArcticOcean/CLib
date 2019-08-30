@@ -17,9 +17,9 @@ This folder stores some C/C++ libraries and simple examples.
 <li> binary_function.cpp: use binary_function to write simple class to define self comparison function.
 <li> VTKLearn: the folder contains some basic cases that for us to learn VTK, some cases use qt.
 <li> MSVCLogprinter: the folder has example that provides logprinter to output log in file with MSVC.
-<li> CPPDisableCopy: an example that disable copy class object.
+<li> CPPDisableCopy: an example that ban to copy class object.
 <li> ArchClip: an example that clip 3D model by plane based on VTK and Qt
 <li> OpenCTM: some examples which use OpenCTM library to compress 3D mesh
 <li> CheckFolderChange.cpp: use sha256 to check whether the files in folder are changed.
-<li> UpdateJson.cpp: Change all picture's path, from Setting Data1/photo => Photo path
-<li> AxisActor: show axis actor, three ring to rotate the cone.
+<li> UpdateJson.cpp: Change all picture's pathes, change them from Setting Data1/photo to Photo path
+<li> AxisActor: show axis actor, three rings to rotate the cone.
