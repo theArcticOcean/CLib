@@ -23,3 +23,5 @@ This folder stores some C/C++ libraries and simple examples.
 <li> CheckFolderChange.cpp: use sha256 to check whether the files in folder are changed.
 <li> UpdateJson.cpp: Change all picture's pathes, change them from Setting Data1/photo to Photo path
 <li> AxisActor: show axis actor, three rings to rotate the cone.
+<li> This is test line 2.
+<li> ClipThreeRings: hide another half ring when rotate cone, this example is relevant to AxisActor
