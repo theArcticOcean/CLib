@@ -25,3 +25,4 @@ This folder stores some C/C++ libraries and simple examples.
 <li> AxisActor: show axis actor, three rings to rotate the cone.
 <li> This is test line 2.
 <li> ClipThreeRings: hide another half ring when rotate cone, this example is relevant to AxisActor
+<li> vtkFactory: a simple example which show how to define my own vtk factory and use it to create instance.
