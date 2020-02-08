@@ -26,4 +26,4 @@ This folder stores some C/C++ libraries and simple examples.
 <li> This is test line 2.
 <li> ClipThreeRings: hide another half ring when rotate cone, this example is relevant to AxisActor
 <li> vtkFactory: a simple example which show how to define my own vtk factory and use it to create instance.
-<li> CreateCurve: we can change the shape of curve and export it.
+<li> VTKLearn/CreateCurve: we can change the shape of curve and export it.
