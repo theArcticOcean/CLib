@@ -1,7 +1,7 @@
 #include "widget.h"
 #include "ui_widget.h"
 #include <QDebug>
-#include <unistd.h>
+#include <Qthread>
 
 #include <vtkGenericOpenGLRenderWindow.h>
 
@@ -42,15 +42,11 @@ Widget::~Widget()
 
 void Widget::on_pushButton_clicked()
 {
-//    m_Dialog->setParent( this );
-//    m_Dialog->showMaximized();
-//    m_Dialog->exec();
     ui->progressBar->show();
     for( int i = 0; i < 20; ++i )
     {
         ui->progressBar->setValue( ( ui->progressBar->value() + 5 ) % ui->progressBar->maximum() );
-        //sleep( 1 );
-        usleep( 500000 );
+        QThread::msleep( 500 );
     }
     ui->progressBar->hide();
     qDebug() << "show sub widget";

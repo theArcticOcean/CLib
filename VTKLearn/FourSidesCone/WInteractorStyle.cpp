@@ -20,6 +20,7 @@ WInteractorStyle::~WInteractorStyle()
 
 }
 
+
 void WInteractorStyle::OnMouseMove()
 {
     if( m_PickId > -1 )
@@ -62,13 +63,14 @@ void WInteractorStyle::OnMouseMove()
 void WInteractorStyle::OnLeftButtonDown()
 {
     int *pickPos = this->Interactor->GetEventPosition();
+    /*
     PointStruct displayPos( pickPos[0], pickPos[1], pickPos[2] );
     PointStruct worldPos;
     //printf( "pickPos: (%d, %d, %d)\n", pickPos[0], pickPos[1], pickPos[2] );
     m_Render->SetDisplayPoint( displayPos.point );
     m_Render->DisplayToWorld();
     m_Render->GetWorldPoint( worldPos.point );
-    //printf( "pickPos: (%d, %d, %d)\n", worldPos[0], worldPos[1], worldPos[2] );
+    //printf( "pickPos: (%d, %d, %d)\n", worldPos[0], worldPos[1], worldPos[2] ); */
 
     m_Cone->Getm_VertexPicker()->Pick( pickPos[0], pickPos[1], 0, m_Render );
     vtkIdType pickPointId = m_Cone->Getm_VertexPicker()->GetPointId();
@@ -79,7 +81,9 @@ void WInteractorStyle::OnLeftButtonDown()
         m_PickId = pickedActor->Getm_ActorId();
         //printf( "pickId: %d\n", m_PickId );
     }
-    vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
+    else {
+        //vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
+    }
 }
 
 void WInteractorStyle::OnLeftButtonUp()

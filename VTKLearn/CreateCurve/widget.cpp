@@ -10,7 +10,7 @@
 #include <vtkTriangleFilter.h>
 #include <vtkParametricSpline.h>
 #include <vtkCellArray.h>
-#include "../share/tool.h"
+#include "../tool.h"
 
 #include <vtkContourWidget.h>
 #include <vtkProperty.h>
@@ -65,13 +65,21 @@ Widget::Widget(QWidget *parent) :
     backWindow->AddRenderer( backRenderer );
 
     ui->qvtkWidget->SetRenderWindow( backWindow );
-    backRenderer->ResetCamera();
     backWindow->Render();
 
     // Set up the contour widget within the visualization pipeline just assembled
     m_ContourWidget->SetInteractor( ui->qvtkWidget->GetInteractor() );
     m_ContourWidget->On(); // Turn on the interactor observer
     m_ContourWidget->Initialize(polydata);
+
+    vtkSPtrNew( reader, vtkPNGReader );
+    reader->SetFileName( "E:\\project\\1.png" );
+    reader->Update();
+
+    m_Image = vtkSPtr<vtkImageActor>::New();
+    m_Image->SetInputData( reader->GetOutput() );
+    backRenderer->AddActor( m_Image );
+    backRenderer->ResetCamera();
 }
 
 Widget::~Widget()
@@ -122,7 +130,7 @@ void Widget::on_OutputButton_clicked()
 
     vtkSmartPointer<vtkXMLPolyDataWriter> writer =
       vtkSmartPointer<vtkXMLPolyDataWriter>::New();
-    writer->SetFileName( "/Users/weiyang/Desktop/curve.vtp" );
+    writer->SetFileName( "E:\\project\\curve.vtp" );
     writer->SetInputData( splinePd );
     writer->Write();
 

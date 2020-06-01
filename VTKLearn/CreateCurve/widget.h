@@ -19,6 +19,7 @@
 #include <vtkTextProperty.h>
 #include <vtkBoxWidget.h>
 #include <vtkContourWidget.h>
+#include <vtkImageActor.h>
 
 namespace Ui {
 class Widget;
@@ -56,6 +57,7 @@ private:
     Ui::Widget *ui;
     vtkSPtr<vtkContourWidget> m_ContourWidget;
     vtkSPtr<vtkActor> m_Actor;
+    vtkSPtr<vtkImageActor> m_Image;
 };
 
 #endif // WIDGET_H
