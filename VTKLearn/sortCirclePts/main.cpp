@@ -21,6 +21,7 @@
 #include <vtkNamedColors.h>
 #include <vtkCell.h>
 #include <QVector>
+#include <vtkIdList.h>
 
 #define vtkSPtr vtkSmartPointer
 #define vtkSPtrNew(Var, Type) vtkSPtr<Type> Var = vtkSPtr<Type>::New();
@@ -57,24 +58,56 @@ int main(int, char *[])
     auto selectionPoints = polyData->GetPoints();
     vtkSmartPointer<vtkPoints> sortPts =
             vtkSmartPointer<vtkPoints>::New();
+    vtkIdType lastCellId = 0;
     // the first line
-    vtkCell *cell = polyData->GetCell( 0 );
+    vtkCell *cell = polyData->GetCell( lastCellId );
     vtkIdList *ids = cell->GetPointIds();
     for( int i = 0; i < ids->GetNumberOfIds(); ++i )
     {
         vtkIdType id = ids->GetId( i );
         sortedIds.push_back( id );
     }
-    polyData->GetCellEdge
 
+    vtkSPtrNew( neighborCellIds, vtkIdList );
+    QVector<bool> cellVisited;
     for( int i = 0; i < polyData->GetNumberOfCells(); ++i )
     {
-
+        cellVisited.push_back( false );
     }
 
+    //polyData->GetCellNeighbors( lastCellId, ids, neighborCellIds );
+    //polyData->GetCellEdgeNeighbors( lastCellId, 0, 1, neighborCellIds );
+
+    while ( !cellVisited[lastCellId] && sortedIds.size() < polyData->GetNumberOfPoints() )
+    {
+        polyData->GetPointCells( sortedIds[sortedIds.size() - 1], neighborCellIds );
+        cout << "lastCellId neighborCellIds: " << neighborCellIds->GetNumberOfIds() << endl;
+        for( int i = 0; i < neighborCellIds->GetNumberOfIds(); ++i )
+        {
+            vtkIdType cellId = neighborCellIds->GetId( i );
+            if( cellVisited[ cellId ] )
+            {
+                continue;
+            }
+            cout << "cellId: " << cellId << endl;
+            vtkCell *cell = polyData->GetCell( cellId );
+            vtkIdList *ptIds = cell->GetPointIds();
+            for( int j = 0; j < ptIds->GetNumberOfIds(); ++j )
+            {
+                auto ptId = ptIds->GetId( j );
+                if( !sortedIds.contains( ptId ) )
+                {
+                    sortedIds.push_back( ptId );
+                    cellVisited[lastCellId] = true;
+                    lastCellId = cellId;
+                    break;
+                }
+            }
+        }
+    }
     // ===================== finished: sorted points ============================
 
-    for( int i = 0; i < selectionPoints->GetNumberOfPoints(); ++i )
+    for( int i = 0; i < sortedIds.size(); ++i )
     {
         // text 2D
         vtkSmartPointer<vtkTextSource> text2D =
@@ -83,7 +116,7 @@ int main(int, char *[])
 
         vtkSmartPointer<vtkTransform> text2DTransform =
                 vtkSmartPointer<vtkTransform>::New();
-        double *center = selectionPoints->GetPoint( i );
+        double *center = selectionPoints->GetPoint( sortedIds[i] );
         text2DTransform->Translate( center[0], center[1], center[2] );
         text2DTransform->Scale( 0.003, 0.003, 0.003 );
 
