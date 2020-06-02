@@ -22,6 +22,8 @@
 #include <vtkCell.h>
 #include <QVector>
 #include <vtkIdList.h>
+#include <vtkSphereSource.h>
+#include <vtkPolyDataConnectivityFilter.h>
 
 #define vtkSPtr vtkSmartPointer
 #define vtkSPtrNew(Var, Type) vtkSPtr<Type> Var = vtkSPtr<Type>::New();
@@ -33,6 +35,13 @@ int main(int, char *[])
     reader->Update();
 
     auto *polyData = reader->GetOutput();
+
+    vtkSPtrNew( connectivityF, vtkPolyDataConnectivityFilter );
+    connectivityF->SetInputData( polyData );
+    connectivityF->SetExtractionModeToLargestRegion();
+    connectivityF->Update();
+
+    polyData = connectivityF->GetOutput();
 
     vtkSPtrNew( mapper, vtkPolyDataMapper );
     mapper->SetInputData( polyData );
@@ -50,12 +59,12 @@ int main(int, char *[])
     vtkSPtrNew( renderWindowInteractor, vtkRenderWindowInteractor );
     renderWindowInteractor->SetRenderWindow( renderWindow );
 
+    auto selectionPoints = polyData->GetPoints();
     // ===================== create sorted points ============================
     polyData->BuildCells();
     polyData->BuildLinks();
     QVector<vtkIdType> sortedIds;
 
-    auto selectionPoints = polyData->GetPoints();
     vtkSmartPointer<vtkPoints> sortPts =
             vtkSmartPointer<vtkPoints>::New();
     vtkIdType lastCellId = 0;
@@ -68,7 +77,6 @@ int main(int, char *[])
         sortedIds.push_back( id );
     }
 
-    vtkSPtrNew( neighborCellIds, vtkIdList );
     QVector<bool> cellVisited;
     for( int i = 0; i < polyData->GetNumberOfCells(); ++i )
     {
@@ -78,36 +86,48 @@ int main(int, char *[])
     //polyData->GetCellNeighbors( lastCellId, ids, neighborCellIds );
     //polyData->GetCellEdgeNeighbors( lastCellId, 0, 1, neighborCellIds );
 
-    while ( !cellVisited[lastCellId] && sortedIds.size() < polyData->GetNumberOfPoints() )
+    while ( sortedIds.size() < polyData->GetNumberOfPoints() )
     {
-        polyData->GetPointCells( sortedIds[sortedIds.size() - 1], neighborCellIds );
-        cout << "lastCellId neighborCellIds: " << neighborCellIds->GetNumberOfIds() << endl;
-        for( int i = 0; i < neighborCellIds->GetNumberOfIds(); ++i )
+        vtkSPtrNew( neighborCellIds, vtkIdList );
+        bool foundCell = false;
+        int index = sortedIds.size() - 1;
+        while( index >= 0 && !foundCell )
         {
-            vtkIdType cellId = neighborCellIds->GetId( i );
-            if( cellVisited[ cellId ] )
+            polyData->GetPointCells( sortedIds[index], neighborCellIds );
+            for( int i = 0; i < neighborCellIds->GetNumberOfIds(); ++i )
             {
-                continue;
-            }
-            cout << "cellId: " << cellId << endl;
-            vtkCell *cell = polyData->GetCell( cellId );
-            vtkIdList *ptIds = cell->GetPointIds();
-            for( int j = 0; j < ptIds->GetNumberOfIds(); ++j )
-            {
-                auto ptId = ptIds->GetId( j );
-                if( !sortedIds.contains( ptId ) )
+                vtkIdType cellId = neighborCellIds->GetId( i );
+                if( cellVisited[ cellId ] )
                 {
-                    sortedIds.push_back( ptId );
-                    cellVisited[lastCellId] = true;
-                    lastCellId = cellId;
+                    continue;
+                }
+                cout << "cellId: " << cellId << endl;
+                vtkCell *cell = polyData->GetCell( cellId );
+                vtkIdList *ptIds = cell->GetPointIds();
+                for( int j = 0; j < ptIds->GetNumberOfIds(); ++j )
+                {
+                    auto ptId = ptIds->GetId( j );
+                    if( !sortedIds.contains( ptId ) )
+                    {
+                        sortedIds.push_back( ptId );
+                        cellVisited[lastCellId] = true;
+                        lastCellId = cellId;
+                        foundCell = true;
+                        break;
+                    }
+                }
+                if( foundCell )
+                {
                     break;
                 }
             }
+            index--;
         }
     }
     // ===================== finished: sorted points ============================
 
     for( int i = 0; i < sortedIds.size(); ++i )
+    //for( int i = 0; i < selectionPoints->GetNumberOfPoints(); ++i )
     {
         // text 2D
         vtkSmartPointer<vtkTextSource> text2D =
@@ -117,6 +137,7 @@ int main(int, char *[])
         vtkSmartPointer<vtkTransform> text2DTransform =
                 vtkSmartPointer<vtkTransform>::New();
         double *center = selectionPoints->GetPoint( sortedIds[i] );
+        //double *center = selectionPoints->GetPoint( i );
         text2DTransform->Translate( center[0], center[1], center[2] );
         text2DTransform->Scale( 0.003, 0.003, 0.003 );
 
@@ -140,6 +161,59 @@ int main(int, char *[])
 
         renderer->AddActor( text2DActor );
     }
+
+    /*cell = polyData->GetCell( 17 );
+    ids = cell->GetPointIds();
+    for( int i = 0; i < ids->GetNumberOfIds(); ++i )
+    {
+        vtkIdType id = ids->GetId( i );
+        cout << id << "\t";
+        double *pos = polyData->GetPoint( id );
+        vtkSPtrNew( sphere, vtkSphereSource );
+        sphere->SetCenter( pos );
+        sphere->SetRadius( 0.03 );
+        sphere->Update();
+        vtkSPtrNew( mapper, vtkPolyDataMapper );
+        mapper->SetInputData( sphere->GetOutput() );
+        vtkSPtrNew( actor, vtkActor );
+        actor->SetMapper( mapper );
+        actor->GetProperty()->SetColor( 1, 0, 0 );
+        renderer->AddActor( actor );
+    }
+    cout << endl;
+
+    cell = polyData->GetCell( 19 );
+    ids = cell->GetPointIds();
+    for( int i = 0; i < ids->GetNumberOfIds(); ++i )
+    {
+        vtkIdType id = ids->GetId( i );
+        cout << id << "\t";
+        double *pos = polyData->GetPoint( id );
+        vtkSPtrNew( sphere, vtkSphereSource );
+        sphere->SetCenter( pos );
+        sphere->SetRadius( 0.03 );
+        sphere->Update();
+        vtkSPtrNew( mapper, vtkPolyDataMapper );
+        mapper->SetInputData( sphere->GetOutput() );
+        vtkSPtrNew( actor, vtkActor );
+        actor->SetMapper( mapper );
+        actor->GetProperty()->SetColor( 0, 1, 0 );
+        renderer->AddActor( actor );
+    }
+    cout << endl;
+
+    for( int i = 0; i < polyData->GetNumberOfCells(); ++i )
+    {
+        vtkCell *cell = polyData->GetCell( i );
+        vtkIdList *ids = cell->GetPointIds();
+        cout << i << ": ";
+        for( int j = 0; j < ids->GetNumberOfIds(); ++j )
+        {
+            auto id = ids->GetId( j );
+            cout << id << "\t";
+        }
+        cout << endl;
+    } */
 
     renderer->ResetCamera();
     renderWindow->Render();
