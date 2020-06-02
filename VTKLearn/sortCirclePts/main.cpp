@@ -23,7 +23,11 @@
 #include <QVector>
 #include <vtkIdList.h>
 #include <vtkSphereSource.h>
+#include <vtkFollower.h>
 #include <vtkPolyDataConnectivityFilter.h>
+#include <vtkVectorText.h>
+#include <QMap>
+#include <QSet>
 
 #define vtkSPtr vtkSmartPointer
 #define vtkSPtrNew(Var, Type) vtkSPtr<Type> Var = vtkSPtr<Type>::New();
@@ -31,7 +35,7 @@
 int main(int, char *[])
 {
     vtkSPtrNew( reader, vtkXMLPolyDataReader );
-    reader->SetFileName( "../intersectCircle.vtp" );
+    reader->SetFileName( "../intersectCircle3.vtp" );
     reader->Update();
 
     auto *polyData = reader->GetOutput();
@@ -60,6 +64,8 @@ int main(int, char *[])
     renderWindowInteractor->SetRenderWindow( renderWindow );
 
     auto selectionPoints = polyData->GetPoints();
+
+    /*
     // ===================== create sorted points ============================
     polyData->BuildCells();
     polyData->BuildLinks();
@@ -125,6 +131,39 @@ int main(int, char *[])
         }
     }
     // ===================== finished: sorted points ============================
+    */
+
+    // ===================== second method for sorting ==========================
+    polyData->BuildCells();
+    polyData->BuildLinks();
+    QVector<vtkIdType> sortedIds;
+    QMap<int, int> lineIds;
+
+    for( int i = 0; i < polyData->GetNumberOfCells(); ++i )
+    {
+        vtkCell *cell = polyData->GetCell( i );
+        vtkIdList *ids = cell->GetPointIds();
+        auto id0 = ids->GetId( 0 );
+        auto id1 = ids->GetId( 1 );
+        lineIds[id0] = id1;
+    }
+
+    sortedIds.push_back( 0 );
+    sortedIds.push_back( lineIds[0] );
+    while( sortedIds.size() < selectionPoints->GetNumberOfPoints() )
+    {
+        int lastId = sortedIds[sortedIds.size() - 1];
+        sortedIds.push_back( lineIds[lastId] );
+    }
+
+    QSet<int> uniIds;
+    for( auto it: sortedIds )
+    {
+        uniIds.insert( it );
+    }
+
+    cout << "size: " << uniIds.size() << " vs " << selectionPoints->GetNumberOfPoints() << endl;
+    // ===================== finished: second method ==========================
 
     for( int i = 0; i < sortedIds.size(); ++i )
     //for( int i = 0; i < selectionPoints->GetNumberOfPoints(); ++i )
@@ -160,6 +199,29 @@ int main(int, char *[])
         text2DActor->SetMapper( text2DMapper );
 
         renderer->AddActor( text2DActor );
+
+        /* vtkSmartPointer<vtkVectorText> text =
+                vtkSmartPointer<vtkVectorText>::New();
+        text->SetText( QString::number( i ).toStdString().c_str() );
+        text->Update();
+        vtkSmartPointer<vtkTransform> transform =
+                vtkSmartPointer<vtkTransform>::New();
+        center = selectionPoints->GetPoint( sortedIds[i] );
+        transform->Translate( center[0], center[1], center[2] );
+        //transform->Scale( 0.003, 0.003, 0.003 );
+        transform->Update();
+        vtkSmartPointer<vtkTransformPolyDataFilter> transFilter =
+                vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+        transFilter->SetTransform( transform );
+        transFilter->SetInputData( text->GetOutput() );
+        transFilter->Update();
+        vtkSmartPointer<vtkPolyDataMapper> mapper =
+                vtkSmartPointer<vtkPolyDataMapper>::New();
+        mapper->SetInputData( transFilter->GetOutput() );
+        vtkSmartPointer<vtkFollower> actor = vtkSmartPointer<vtkFollower>::New();
+        actor->SetCamera( renderer->GetActiveCamera() );
+        actor->SetMapper( mapper );
+        renderer->AddActor( actor ); */
     }
 
     /*cell = polyData->GetCell( 17 );
