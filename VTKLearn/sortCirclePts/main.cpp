@@ -31,7 +31,7 @@
 int main(int, char *[])
 {
     vtkSPtrNew( reader, vtkXMLPolyDataReader );
-    reader->SetFileName( "../intersectCircle.vtp" );
+    reader->SetFileName( "../intersectCircle2.vtp" );
     reader->Update();
 
     auto *polyData = reader->GetOutput();
@@ -90,38 +90,33 @@ int main(int, char *[])
     {
         vtkSPtrNew( neighborCellIds, vtkIdList );
         bool foundCell = false;
-        int index = sortedIds.size() - 1;
-        while( index >= 0 && !foundCell )
+        polyData->GetPointCells( sortedIds[sortedIds.size() - 1], neighborCellIds );
+        for( int i = 0; i < neighborCellIds->GetNumberOfIds(); ++i )
         {
-            polyData->GetPointCells( sortedIds[index], neighborCellIds );
-            for( int i = 0; i < neighborCellIds->GetNumberOfIds(); ++i )
+            vtkIdType cellId = neighborCellIds->GetId( i );
+            if( cellVisited[ cellId ] )
             {
-                vtkIdType cellId = neighborCellIds->GetId( i );
-                if( cellVisited[ cellId ] )
+                continue;
+            }
+            cout << "cellId: " << cellId << endl;
+            vtkCell *cell = polyData->GetCell( cellId );
+            vtkIdList *ptIds = cell->GetPointIds();
+            for( int j = 0; j < ptIds->GetNumberOfIds(); ++j )
+            {
+                auto ptId = ptIds->GetId( j );
+                if( !sortedIds.contains( ptId ) )
                 {
-                    continue;
-                }
-                cout << "cellId: " << cellId << endl;
-                vtkCell *cell = polyData->GetCell( cellId );
-                vtkIdList *ptIds = cell->GetPointIds();
-                for( int j = 0; j < ptIds->GetNumberOfIds(); ++j )
-                {
-                    auto ptId = ptIds->GetId( j );
-                    if( !sortedIds.contains( ptId ) )
-                    {
-                        sortedIds.push_back( ptId );
-                        cellVisited[lastCellId] = true;
-                        lastCellId = cellId;
-                        foundCell = true;
-                        break;
-                    }
-                }
-                if( foundCell )
-                {
+                    sortedIds.push_back( ptId );
+                    cellVisited[lastCellId] = true;
+                    lastCellId = cellId;
+                    foundCell = true;
                     break;
                 }
             }
-            index--;
+            if( foundCell )
+            {
+                break;
+            }
         }
     }
     // ===================== finished: sorted points ============================
