@@ -166,7 +166,7 @@ int main(int, char *[])
         vtkSmartPointer<vtkTransform> text2DTransform =
                 vtkSmartPointer<vtkTransform>::New();
         //double *center = selectionPoints->GetPoint( sortedIds[i] );
-        double *center = selectionPoints->GetPoint( i );
+        double *center = connectPoints->GetPoint( i );
         //double *center = selectionPoints->GetPoint( i );
         text2DTransform->Translate( center[0], center[1], center[2] );
         text2DTransform->Scale( 0.003, 0.003, 0.003 );
