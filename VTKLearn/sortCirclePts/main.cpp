@@ -30,7 +30,8 @@
 #include <QSet>
 #include <vtkCellData.h>
 
-#include "ULineSegmentsToConnectedList.h"
+//#include "ULineSegmentsToConnectedList.h"
+#include "ConnectedEdgeFilter.hpp"
 
 int main(int, char *[])
 {
@@ -46,7 +47,6 @@ int main(int, char *[])
     connectivityF->Update();
 
     polyData = connectivityF->GetOutput();
-    auto selectionPoints = polyData->GetPoints();
 
     vSPNew( mapper, vtkPolyDataMapper );
     mapper->SetInputData( polyData );
@@ -65,9 +65,9 @@ int main(int, char *[])
     renderWindowInteractor->SetRenderWindow( renderWindow );
 
     // ===================== connectivity filter ============================
-    CULineSegmentsToConnectedList* connectFilter = new CULineSegmentsToConnectedList;
-    connectFilter->SetLineSegments( polyData->GetLines() );
-    connectFilter->Transform();
+    ConnectedEdgeFilter* connectFilter = new ConnectedEdgeFilter;
+    connectFilter->Initialise( polyData->GetLines() );
+    connectFilter->HandleEdges();
 
     vSP<vtkPoints> connectPoints = vSP<vtkPoints>::New();
     vSP<vtkIdList> longestList = connectFilter->GetLongestList();
