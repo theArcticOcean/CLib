@@ -59,9 +59,9 @@ void CULineSegmentsToConnectedList::Transform(bool bMerge)
 		}
 	}
 
-	if (bMerge)
-		Merge();
-	OrderConnectedList();
+    if (bMerge)
+        Merge();
+    OrderConnectedList();
 	//int numberOfConnectedList = m_ConnectedLists.size();
 	//if (numberOfConnectedList == 2)
 	//{
