@@ -6,8 +6,8 @@ find_package( VTK REQUIRED )
 include( ${VTK_USE_FILE} )
 
 add_executable(${PROJECT_NAME} "main.cpp"
-    "vtkSelectPolyData.h"
-    "vtkSelectPolyData.cpp"
+    "UVtkSelectPolyData.h"
+    "UVtkSelectPolyData.cpp"
     "ULog.h"
     )
 
