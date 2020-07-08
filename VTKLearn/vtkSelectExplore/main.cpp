@@ -24,12 +24,12 @@ using namespace std;
 
 int main()
 {
-    vtkSPtrNew( toothReader, vtkSTLReader );
-    toothReader->SetFileName( "../tooth.STL" );
+    vtkSPtrNew( toothReader, vtkXMLPolyDataReader );
+    toothReader->SetFileName( "../tooth.vtp" );
     toothReader->Update();
 
     vtkSPtrNew( circleReader, vtkXMLPolyDataReader );
-    circleReader->SetFileName( "../circle0.vtp" );
+    circleReader->SetFileName( "../line.vtp" );
     circleReader->Update();
 
     vtkSPtrNew( circleMapper, vtkPolyDataMapper );
@@ -46,7 +46,7 @@ int main()
     vtkSPtrNew( tmpPd, vtkPolyData );
     tmpPd->DeepCopy( toothReader->GetOutput() );
 
-    vtkSPtrNew( writer, vtkSTLWriter );
+    /*vtkSPtrNew( writer, vtkSTLWriter );
     string tmpFile = "newData.STL";
     writer->SetInputData( tmpPd );
     writer->SetFileName( tmpFile.c_str() );
@@ -57,21 +57,21 @@ int main()
     reader->Update();
 
     tmpPd->DeepCopy( reader->GetOutput() );
-    tmpPd->Modified();
+    tmpPd->Modified();*/
 
     loop->SetInputData( tmpPd );
     loop->SetLoop( circleReader->GetOutput()->GetPoints() );
     loop->GenerateSelectionScalarsOn();
     loop->SetSelectionModeToSmallestRegion();
+    //loop->SetSelectionModeToClosestPointRegion();
     loop->Update();
 
     auto *loopPd = loop->GetOutput();
     cout << loopPd->GetNumberOfCells() << ", " << loopPd->GetNumberOfPoints() << endl;
 
-
     //negative scalars inside loop->Update();
     vtkSPtrNew( toothMapper, vtkPolyDataMapper );
-    toothMapper->SetInputData( toothReader->GetOutput() ); //loop->GetOutput() );
+    toothMapper->SetInputData( loop->GetOutput() ); // toothReader->GetOutput() );
 
     vtkSPtrNew( toothActor, vtkActor );
     toothActor->SetMapper( toothMapper );
@@ -81,7 +81,7 @@ int main()
     renderer->AddActor( circleActor );
     renderer->SetBackground( 0, 0, 0 );
 
-    // ============= show edge ================
+    /* // ============= show edge ================
     vtkPolyData *edgeData = loop->GetSelectionEdges();
     vtkSPtrNew( edgeMapper, vtkPolyDataMapper );
     edgeMapper->SetInputData( edgeData );
@@ -89,9 +89,9 @@ int main()
     edgeActor->SetMapper( edgeMapper );
     edgeActor->GetProperty()->SetColor( 1, 1, 0 );
     renderer->AddActor( edgeActor );
-    // ============= finish ================
+    // ============= finish ================ */
 
-    // ============= show broken point =============
+    /*//============= show broken point =============
     auto brokenId = loop->Getm_BrokenPtId();
     LOG( INFO, "brokenId: ", brokenId );
     double *brokenPt = tmpPd->GetPoint( brokenId );
@@ -113,7 +113,7 @@ int main()
     sphereActor->SetUserTransform( trans );
 
     renderer->AddActor( sphereActor );
-    // =======================================
+    //======================================= */
 
     vtkSPtrNew( renderWindow, vtkRenderWindow );
     renderWindow->AddRenderer( renderer );

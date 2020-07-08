@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSelectPolyData.cxx
+  Module:    CUVtkSelectPolyData.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSelectPolyData.h"
+#include "UVtkSelectPolyData.h"
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -34,13 +34,15 @@
 
 #include "ULog.h"
 
-vtkStandardNewMacro(vtkSelectPolyData);
+using namespace SelectRegion;
 
-vtkCxxSetObjectMacro(vtkSelectPolyData,Loop,vtkPoints);
+vtkStandardNewMacro(CUVtkSelectPolyData);
+
+vtkCxxSetObjectMacro(CUVtkSelectPolyData,Loop,vtkPoints);
 
 // Description:
 // Instantiate object with InsideOut turned off.
-vtkSelectPolyData::vtkSelectPolyData()
+CUVtkSelectPolyData::CUVtkSelectPolyData()
 {
   this->GenerateSelectionScalars = 0;
   this->InsideOut = 0;
@@ -58,19 +60,26 @@ vtkSelectPolyData::vtkSelectPolyData()
   vtkPolyData *output3 = vtkPolyData::New();
   this->GetExecutive()->SetOutputData(2, output3);
   output3->Delete();
+
+  m_PointMarks = nullptr;
 }
 
 //----------------------------------------------------------------------------
-vtkSelectPolyData::~vtkSelectPolyData()
+CUVtkSelectPolyData::~CUVtkSelectPolyData()
 {
   if (this->Loop)
   {
     this->Loop->Delete();
   }
+  if( m_PointMarks )
+  {
+      m_PointMarks->Delete();
+      m_PointMarks = nullptr;
+  }
 }
 
 //----------------------------------------------------------------------------
-vtkPolyData *vtkSelectPolyData::GetUnselectedOutput()
+vtkPolyData *CUVtkSelectPolyData::GetUnselectedOutput()
 {
   if (this->GetNumberOfOutputPorts() < 2)
   {
@@ -82,7 +91,7 @@ vtkPolyData *vtkSelectPolyData::GetUnselectedOutput()
 }
 
 //----------------------------------------------------------------------------
-vtkPolyData *vtkSelectPolyData::GetSelectionEdges()
+vtkPolyData *CUVtkSelectPolyData::GetSelectionEdges()
 {
   if (this->GetNumberOfOutputPorts() < 3)
   {
@@ -94,7 +103,7 @@ vtkPolyData *vtkSelectPolyData::GetSelectionEdges()
 }
 
 //----------------------------------------------------------------------------
-int vtkSelectPolyData::RequestData(
+int CUVtkSelectPolyData::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -314,11 +323,11 @@ int vtkSelectPolyData::RequestData(
   {
     cellMarks->SetValue(i,VTK_INT_MAX);
   }
-  vtkIntArray *pointMarks = vtkIntArray::New();
-  pointMarks->SetNumberOfValues(numPts);
+  m_PointMarks = vtkIntArray::New();
+  m_PointMarks->SetNumberOfValues(numPts);
   for (i=0; i<numPts; i++)  //mark unvisited
   {
-    pointMarks->SetValue(i,VTK_INT_MAX);
+    m_PointMarks->SetValue(i,VTK_INT_MAX);
   }
 
   vtkIdList *currentFront = vtkIdList::New(), *tmpFront;
@@ -326,7 +335,7 @@ int vtkSelectPolyData::RequestData(
   for (i=0; i<numMeshLoopPts; i++)
   {
     id = edgeIds->GetId(i);
-    pointMarks->SetValue(id, 0); //marks the start of the front
+    m_PointMarks->SetValue(id, 0); //marks the start of the front
     currentFront->InsertNextId(id);
   }
 
@@ -354,9 +363,9 @@ int vtkSelectPolyData::RequestData(
           this->Mesh->GetCellPoints(id,npts,pts);
           for (k=0; k<npts; k++)
           {
-            if ( pointMarks->GetValue(pts[k]) == VTK_INT_MAX )
+            if ( m_PointMarks->GetValue(pts[k]) == VTK_INT_MAX )
             {
-              pointMarks->SetValue(pts[k], 1);
+              m_PointMarks->SetValue(pts[k], 1);
               nextFront->InsertNextId(pts[k]);
             }
           }
@@ -381,7 +390,7 @@ int vtkSelectPolyData::RequestData(
 
       dist2 = vtkMath::Distance2BetweenPoints(x, this->ClosestPoint);
       // get closest point not on the boundary
-      if ( dist2 < closestDist2 && pointMarks->GetValue(j) != 0 )
+      if ( dist2 < closestDist2 && m_PointMarks->GetValue(j) != 0 )
       {
         closest = j;
         closestDist2 = dist2;
@@ -409,12 +418,12 @@ int vtkSelectPolyData::RequestData(
       {
         pt1 = pts[j];
         pt2 = pts[(j+1)%3];
-        s1 = pointMarks->GetValue(pt1);
-        s2 = pointMarks->GetValue(pt2);
+        s1 = m_PointMarks->GetValue(pt1);
+        s2 = m_PointMarks->GetValue(pt2);
 
         if ( s1 != 0 )
         {
-          pointMarks->SetValue(pt1, -1);
+          m_PointMarks->SetValue(pt1, -1);
         }
 
         if ( ! (s1 == 0 && s2 == 0) )
@@ -451,8 +460,8 @@ int vtkSelectPolyData::RequestData(
     }
     for (i=0; i < numPts; i++)
     {
-      mark = pointMarks->GetValue(i);
-      pointMarks->SetValue(i, -mark);
+      mark = m_PointMarks->GetValue(i);
+      m_PointMarks->SetValue(i, -mark);
     }
   }
 
@@ -504,7 +513,7 @@ int vtkSelectPolyData::RequestData(
     // the connected fill distance.
     for (j=0; j < numPts; j++) //compute minimum distance to loop
     {
-      if ( pointMarks->GetValue(j) != 0 )
+      if ( m_PointMarks->GetValue(j) != 0 )
       {
         inPts->GetPoint(j,x);
         for ( closestDist2=VTK_DOUBLE_MAX, i=0; i < numLoopPts; i++ )
@@ -519,7 +528,7 @@ int vtkSelectPolyData::RequestData(
         }//for all loop edges
           closestDist2 = sqrt((double)closestDist2);
           selectionScalars->SetComponent(j,0,
-                                         closestDist2*pointMarks->GetValue(j));
+                                         closestDist2*m_PointMarks->GetValue(j));
       }
     }
 
@@ -549,7 +558,7 @@ int vtkSelectPolyData::RequestData(
       for (dist2=0.0, i=0; i<numNei; i++)
       {
         neiId = neighbors->GetId(i);
-        if ( pointMarks->GetValue(neiId) != 0 ) //find the furthest away
+        if ( m_PointMarks->GetValue(neiId) != 0 ) //find the furthest away
         {
           if ( fabs(selectionScalars->GetComponent(neiId,0)) > dist2 )
           {
@@ -563,11 +572,11 @@ int vtkSelectPolyData::RequestData(
       if ( vtkMath::Distance2BetweenPoints(x0,x) <
            vtkMath::Distance2BetweenPoints(x0,neiX) )
       {
-        closestDist2 = closestDist2 * pointMarks->GetValue(currentId);
+        closestDist2 = closestDist2 * m_PointMarks->GetValue(currentId);
       }
       else
       {
-        closestDist2 = -closestDist2 * pointMarks->GetValue(currentId);
+        closestDist2 = -closestDist2 * m_PointMarks->GetValue(currentId);
       }
 
       selectionScalars->SetComponent(id,0,closestDist2);
@@ -589,15 +598,15 @@ int vtkSelectPolyData::RequestData(
   edgeIds->Delete();
   loopIds->Delete();
   cellMarks->Delete();
-  pointMarks->Delete();
   currentFront->Delete();
   nextFront->Delete();
 
+  HandleSelectPtScalars( output );
   return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkSelectPolyData::GetPointNeighbors (vtkIdType ptId, vtkIdList *nei)
+void CUVtkSelectPolyData::GetPointNeighbors (vtkIdType ptId, vtkIdList *nei)
 {
   unsigned short ncells;
   int i, j;
@@ -619,7 +628,7 @@ void vtkSelectPolyData::GetPointNeighbors (vtkIdType ptId, vtkIdList *nei)
 }
 
 //----------------------------------------------------------------------------
-vtkMTimeType vtkSelectPolyData::GetMTime()
+vtkMTimeType CUVtkSelectPolyData::GetMTime()
 {
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType time;
@@ -633,8 +642,64 @@ vtkMTimeType vtkSelectPolyData::GetMTime()
   return mTime;
 }
 
+void CUVtkSelectPolyData::HandleSelectPtScalars(vtkPolyData *output)
+{
+    double allArea = 0;
+    double backArea = 0;
+    for( int i = 0; i < output->GetNumberOfCells(); ++i )
+    {
+        vtkCell *cell = output->GetCell( i );
+        vtkPoints *pts = cell->GetPoints();
+        if( pts->GetNumberOfPoints() != 3 )
+        {
+            continue;
+        }
+        CellInfo cellInfo;
+        bool isBackArea = true;
+        for( int j = 0; j < 3; ++j )
+        {
+            cellInfo.pts[j] = PointStruct( pts->GetPoint( j ) );
+            auto ptId = cell->GetPointId(j);
+            if( m_PointMarks->GetValue( ptId ) > 0 )
+            {
+                isBackArea = false;
+            }
+        }
+        allArea += cellInfo.GetCellArea();
+        if( isBackArea )
+        {
+            backArea += cellInfo.GetCellArea();
+        }
+    }
+    LOG( INFO, "backArea: ", backArea, ", half of allArea: ", allArea/2 );
+
+    if( backArea > allArea/2 )
+    {
+        for( int i = 0; i < m_PointMarks->GetNumberOfValues(); ++i )
+        {
+            auto value = m_PointMarks->GetValue( i );
+            if( value < 0 || value > 0 )
+            {
+                m_PointMarks->SetValue( i, -value );
+            }
+        }
+
+        vtkDataArray *selectPtScalarArray = output->GetPointData()->GetAttribute( vtkDataSetAttributes::SCALARS );
+        if( nullptr == selectPtScalarArray )
+        {
+            LOG( WARNING, "here is nullptr" );
+            return ;
+        }
+        for( int i = 0; i < output->GetNumberOfPoints(); ++i )
+        {
+            double value = selectPtScalarArray->GetComponent( i, 0 );
+            selectPtScalarArray->SetComponent( i, 0, -value );
+        }
+    }
+}
+
 //----------------------------------------------------------------------------
-void vtkSelectPolyData::PrintSelf(ostream& os, vtkIndent indent)
+void CUVtkSelectPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
@@ -662,4 +727,3 @@ void vtkSelectPolyData::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Loop not defined\n";
   }
 }
-
