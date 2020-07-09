@@ -22,7 +22,7 @@ using namespace std;
 
 #define vtkSPtr vtkSmartPointer
 #define vtkSPtrNew(Var, Type) vtkSPtr<Type> Var = vtkSPtr<Type>::New();
-#define Debug 0
+#define Debug 1
 
 int main()
 {
