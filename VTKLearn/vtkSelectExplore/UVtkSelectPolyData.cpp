@@ -222,7 +222,7 @@ int CUVtkSelectPolyData::RequestData(
   neighbors->Allocate(10000);
   edgeIds->InsertNextId(loopIds->GetId(0));
 
-  LOG( INFO, "numLoopPts: ", numLoopPts );
+  Log( IDebug, "numLoopPts: ", numLoopPts );
 
   for ( i=0; i < numLoopPts; i++ )
   {
@@ -273,15 +273,21 @@ int CUVtkSelectPolyData::RequestData(
 
       if ( closest < 0 )
       {
-        LOG( ERR, "numNei: ", numNei, ", id: ", id, ", i: ", i );
+        Log( IDebug, "numNei: ", numNei, ", id: ", id, ", i: ", i );
         m_BrokenPtId = id;
         vtkErrorMacro(<<"Can't follow edge");
-        triMesh->UnRegister(this);
-        this->Mesh->Delete();
-        neighbors->Delete();
-        edgeIds->Delete();
-        loopIds->Delete();
-        return 1;
+
+//        triMesh->UnRegister(this);
+//        this->Mesh->Delete();
+//        neighbors->Delete();
+//        edgeIds->Delete();
+//        loopIds->Delete();
+//        return 1;
+
+        edgeIds->InsertNextId( nextId );
+        prevId = id;
+        id = nextId;
+        inPts->GetPoint( id, x );
       }
       else
       {
@@ -671,7 +677,7 @@ void CUVtkSelectPolyData::HandleSelectPtScalars(vtkPolyData *output)
             backArea += cellInfo.GetCellArea();
         }
     }
-    LOG( INFO, "backArea: ", backArea, ", half of allArea: ", allArea/2 );
+    Log( IDebug, "backArea: ", backArea, ", half of allArea: ", allArea/2 );
 
     if( backArea > allArea/2 )
     {
@@ -687,7 +693,7 @@ void CUVtkSelectPolyData::HandleSelectPtScalars(vtkPolyData *output)
         vtkDataArray *selectPtScalarArray = output->GetPointData()->GetAttribute( vtkDataSetAttributes::SCALARS );
         if( nullptr == selectPtScalarArray )
         {
-            LOG( WARNING, "here is nullptr" );
+            Log( IDebug, "here is nullptr" );
             return ;
         }
         for( int i = 0; i < output->GetNumberOfPoints(); ++i )

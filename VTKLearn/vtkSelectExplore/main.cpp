@@ -14,7 +14,7 @@
 #include <vtkSTLReader.h>
 #include <vtkTransform.h>
 
-#include "vtkSelectPolyData.h"
+#include "UVtkSelectPolyData.h"
 #include "ULog.h"
 
 using namespace std;
@@ -39,7 +39,7 @@ int main()
     circleActor->SetMapper( circleMapper );
     circleActor->GetProperty()->SetColor( 1, 0, 0 );
 
-    vtkSmartPointer<vtkSelectPolyData> loop = vtkSmartPointer<vtkSelectPolyData>::New();
+    vtkSmartPointer<CUVtkSelectPolyData> loop = vtkSmartPointer<CUVtkSelectPolyData>::New();
     loop->GlobalWarningDisplayOn();
     loop->DebugOn();
 
@@ -62,6 +62,8 @@ int main()
     loop->SetInputData( tmpPd );
     loop->SetLoop( circleReader->GetOutput()->GetPoints() );
     loop->GenerateSelectionScalarsOn();
+    loop->GlobalWarningDisplayOn();
+    loop->DebugOn();
     loop->SetSelectionModeToSmallestRegion();
     //loop->SetSelectionModeToClosestPointRegion();
     loop->Update();
