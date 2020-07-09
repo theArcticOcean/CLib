@@ -16,11 +16,13 @@
 
 #include "UVtkSelectPolyData.h"
 #include "ULog.h"
+#include "ConnectedEdgeFilter.hpp"
 
 using namespace std;
 
 #define vtkSPtr vtkSmartPointer
 #define vtkSPtrNew(Var, Type) vtkSPtr<Type> Var = vtkSPtr<Type>::New();
+#define Debug 0
 
 int main()
 {
@@ -40,27 +42,28 @@ int main()
     circleActor->GetProperty()->SetColor( 1, 0, 0 );
 
     vtkSmartPointer<CUVtkSelectPolyData> loop = vtkSmartPointer<CUVtkSelectPolyData>::New();
+#if Debug
     loop->GlobalWarningDisplayOn();
     loop->DebugOn();
+#endif
+    loop->SetInputData( toothReader->GetOutput() );
 
-    vtkSPtrNew( tmpPd, vtkPolyData );
-    tmpPd->DeepCopy( toothReader->GetOutput() );
+    // ---------------- sort points on circle --------------------
+    vtkPolyData *circlePd = circleReader->GetOutput();
+    ConnectedEdgeFilter* connectFilter = new ConnectedEdgeFilter;
+    connectFilter->Initialise( circlePd->GetLines() );
+    connectFilter->HandleEdges();
 
-    /*vtkSPtrNew( writer, vtkSTLWriter );
-    string tmpFile = "newData.STL";
-    writer->SetInputData( tmpPd );
-    writer->SetFileName( tmpFile.c_str() );
-    writer->Write();
+    vSP<vtkPoints> connectPoints = vSP<vtkPoints>::New();
+    vSP<vtkIdList> longestList = connectFilter->GetLongestList();
+    for (vtkIdType i = 0; i < longestList->GetNumberOfIds(); i++)
+    {
+        connectPoints->InsertNextPoint( circleReader->GetOutput()->GetPoint(longestList->GetId(i)) );
+    }
+    delete connectFilter;
+    // ---------------- finish: sort points --------------------
 
-    vtkSPtrNew( reader, vtkSTLReader );
-    reader->SetFileName( tmpFile.c_str() );
-    reader->Update();
-
-    tmpPd->DeepCopy( reader->GetOutput() );
-    tmpPd->Modified();*/
-
-    loop->SetInputData( tmpPd );
-    loop->SetLoop( circleReader->GetOutput()->GetPoints() );
+    loop->SetLoop( connectPoints ); // circleReader->GetOutput()->GetPoints() );
     loop->GenerateSelectionScalarsOn();
     loop->GlobalWarningDisplayOn();
     loop->DebugOn();
@@ -83,7 +86,7 @@ int main()
     renderer->AddActor( circleActor );
     renderer->SetBackground( 0, 0, 0 );
 
-    /* // ============= show edge ================
+    // ============= show edge ================
     vtkPolyData *edgeData = loop->GetSelectionEdges();
     vtkSPtrNew( edgeMapper, vtkPolyDataMapper );
     edgeMapper->SetInputData( edgeData );
@@ -91,31 +94,7 @@ int main()
     edgeActor->SetMapper( edgeMapper );
     edgeActor->GetProperty()->SetColor( 1, 1, 0 );
     renderer->AddActor( edgeActor );
-    // ============= finish ================ */
-
-    /*//============= show broken point =============
-    auto brokenId = loop->Getm_BrokenPtId();
-    LOG( INFO, "brokenId: ", brokenId );
-    double *brokenPt = tmpPd->GetPoint( brokenId );
-
-    vtkSPtrNew( sphereSource, vtkSphereSource );
-    sphereSource->SetCenter( brokenPt );
-    sphereSource->Update();
-    vtkSPtrNew( sphereMapper, vtkPolyDataMapper );
-    sphereMapper->SetInputData( sphereSource->GetOutput() );
-    sphereMapper->Update();
-    vtkSPtrNew( sphereActor, vtkActor );
-    sphereActor->SetMapper( sphereMapper );
-    sphereActor->GetProperty()->SetColor( 0, 1, 0 );
-    vtkSPtrNew( trans, vtkTransform );
-    trans->Translate( brokenPt );
-    trans->Scale( 0.1, 0.1, 0.1 );
-    trans->Translate( -brokenPt[0], -brokenPt[1], -brokenPt[2] );
-    trans->Update();
-    sphereActor->SetUserTransform( trans );
-
-    renderer->AddActor( sphereActor );
-    //======================================= */
+    // ============= finish ================
 
     vtkSPtrNew( renderWindow, vtkRenderWindow );
     renderWindow->AddRenderer( renderer );

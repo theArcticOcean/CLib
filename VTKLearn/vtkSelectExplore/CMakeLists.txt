@@ -9,8 +9,9 @@ add_executable(${PROJECT_NAME} "main.cpp"
     "UVtkSelectPolyData.h"
     "UVtkSelectPolyData.cpp"
     "ULog.h"
-	"UMacroDefinition.h"
-	"Tools.h"
+    "UMacroDefinition.h"
+    "Tools.h"
+    "ConnectedEdgeFilter.hpp"
     )
 
 target_link_libraries( ${PROJECT_NAME} ${VTK_LIBRARIES} )
