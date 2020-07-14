@@ -27,11 +27,11 @@ using namespace std;
 int main()
 {
     vtkSPtrNew( toothReader, vtkXMLPolyDataReader );
-    toothReader->SetFileName( "../tooth.vtp" );
+    toothReader->SetFileName( "../tooth2.vtp" );
     toothReader->Update();
 
     vtkSPtrNew( circleReader, vtkXMLPolyDataReader );
-    circleReader->SetFileName( "../line.vtp" );
+    circleReader->SetFileName( "../line2.vtp" );
     circleReader->Update();
 
     vtkSPtrNew( circleMapper, vtkPolyDataMapper );
