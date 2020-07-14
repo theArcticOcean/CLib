@@ -157,6 +157,7 @@ protected:
   vtkTypeBool GenerateUnselectedOutput;
   vtkIdType m_BrokenPtId;
   vtkIntArray* m_PointMarks;
+  std::vector<bool> m_ValidPointIds;
 
 private:
   vtkPolyData *Mesh;

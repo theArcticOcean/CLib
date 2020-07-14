@@ -160,7 +160,6 @@ int CUVtkSelectPolyData::RequestData(
   if ( numPolys < 1 )
   {
     vtkErrorMacro("This filter operates on surface primitives");
-    tf->Delete();
     triMesh->UnRegister(this);
     return 1;
   }
@@ -171,10 +170,27 @@ int CUVtkSelectPolyData::RequestData(
   this->Mesh->BuildLinks(); //to do neighborhood searching
   numCells = this->Mesh->GetNumberOfCells();
 
+  m_ValidPointIds.clear();
+  for( int i = 0; i < numPts; ++i )
+  {
+      m_ValidPointIds.push_back( false );
+  }
+  Log( IDebug, "works" );
+  for( int i = 0; i < numCells; ++i )
+  {
+      vSPNew( ptIds, vtkIdList );
+      Mesh->GetCellPoints( i, ptIds );
+      for( int j = 0; j < ptIds->GetNumberOfIds(); ++j )
+      {
+          auto ptId = ptIds->GetId( j );
+          m_ValidPointIds[ptId] = true;
+      }
+  }
+
   // First thing to do is find the closest mesh points to the loop
   // points. This creates a list of point ids.
   loopIds = vtkIdList::New();
-  loopIds->SetNumberOfIds(numLoopPts);
+  //loopIds->SetNumberOfIds(numLoopPts);
 
   for ( i=0; i < numLoopPts; i++)
   {
@@ -194,7 +210,11 @@ int CUVtkSelectPolyData::RequestData(
       }
     } //for all input points
 
-    loopIds->SetId(i,closest);
+    Log( IDebug, "closestDist2: ", closestDist2 );
+    if( m_ValidPointIds[closest] )
+    {
+        loopIds->InsertNextId( closest );
+    }
   } //for all loop points
 
   // Now that we've got point ids, we build the loop. Start with the
@@ -202,18 +222,29 @@ int CUVtkSelectPolyData::RequestData(
   // mesh edge that is directed along the line, and whose
   // end point is closest to the line. Continue until loop closes in on
   // itself.
+  vtkIdType numFoundLoopPts = loopIds->GetNumberOfIds();
+  Log( IDebug, "numFoundLoopPts: ", numFoundLoopPts, ", numLoopPts: ", numLoopPts );
+  if( numFoundLoopPts < 3 )
+  {
+      vtkErrorMacro("numFoundLoopPts < 3");
+      loopIds->Delete();
+      triMesh->UnRegister(this);
+      this->Mesh->Delete();
+      return 1;
+  }
+
   edgeIds = vtkIdList::New();
-  edgeIds->Allocate(numLoopPts*10,1000);
+  edgeIds->Allocate(numFoundLoopPts*10,1000);
   neighbors = vtkIdList::New();
   neighbors->Allocate(10000);
   edgeIds->InsertNextId(loopIds->GetId(0));
 
-  Log( IDebug, "numLoopPts: ", numLoopPts );
+  Log( IDebug, "numLoopPts: ", numFoundLoopPts );
 
-  for ( i=0; i < numLoopPts; i++ )
+  for ( i=0; i < numFoundLoopPts; i++ )
   {
     currentId = loopIds->GetId(i);
-    nextId = loopIds->GetId((i+1)%numLoopPts);
+    nextId = loopIds->GetId((i+1)%numFoundLoopPts);
     prevId = (-1);
     inPts->GetPoint(currentId, x);
     inPts->GetPoint(currentId, x0);
@@ -277,13 +308,17 @@ int CUVtkSelectPolyData::RequestData(
       }
       else
       {
-        edgeIds->InsertNextId(closest);
+        if( m_ValidPointIds[closest] )
+        {
+            edgeIds->InsertNextId(closest);
+        }
         prevId = id;
         id = closest;
         inPts->GetPoint(id, x);
       }
     }//for tracking edge
   }//for all edges of loop
+
 
   // mainly for debugging
   numMeshLoopPts = edgeIds->GetNumberOfIds();
