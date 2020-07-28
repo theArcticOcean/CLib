@@ -14,6 +14,7 @@
 #include <vtkXMLPolyDataReader.h>
 #include <vtkTransform.h>
 
+#include "vtkCustomStyle.h"
 #include "../tool.h"
 
 #define vtkSPtr vtkSmartPointer
@@ -21,6 +22,7 @@
 
 int main(int argc, char *argv[])
 {
+    // ------------- init scene -----------------
     std::string path = "../superquadric.vtp";
     vtkSPtrNew( xmlReader, vtkXMLPolyDataReader );
     xmlReader->SetFileName( path.c_str() );
@@ -60,12 +62,23 @@ int main(int argc, char *argv[])
     renderer->AddActor( axesActor );
     renderer->AddActor( quadricActor );
     renderer->SetBackground( 0, 0, 0 );
+    // ------------- finished: init scene -----------------
 
     vtkSPtrNew( renderWindow, vtkRenderWindow );
     renderWindow->AddRenderer( renderer );
 
     vtkSPtrNew( renderWindowInteractor, vtkRenderWindowInteractor );
     renderWindowInteractor->SetRenderWindow( renderWindow );
+
+    // ------------- configure vtkCustomStyle ----------------
+    vtkSPtrNew( style, vtkCustomStyle );
+    style->Setm_RenderWindow( renderWindow );
+    style->Setm_Renderer( renderer );
+    style->Setm_Interator( renderWindowInteractor );
+    style->InitPicker( cubeActor );
+
+    renderWindowInteractor->SetInteractorStyle( style );
+    // ------------- finished: configure vtkCustomStyle ----------------
 
     renderer->ResetCamera();
     renderWindow->Render();
