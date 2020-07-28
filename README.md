@@ -29,3 +29,4 @@ This folder stores some C/C++ libraries and simple examples.
 <li> VTKLearn/CreateCurve: we can change the shape of curve and export it.
 <li> VTKLearn/ConnectedEdgeList: find the longest connected edge list in the 3D Model By VTK
 <li> VTKLearn/vtkSelectExplore: try to avoid 'can't follow edge' in vtkSelectPolyData
+<li> VTKLearn/touchMoving: move object on the surface of superquadric.
