@@ -76,6 +76,8 @@ int main(int argc, char *argv[])
     style->Setm_Renderer( renderer );
     style->Setm_Interator( renderWindowInteractor );
     style->InitPicker( cubeActor );
+    style->Setm_QuadricActor( quadricActor );
+    style->ConfigureOBBTree();
 
     renderWindowInteractor->SetInteractorStyle( style );
     // ------------- finished: configure vtkCustomStyle ----------------
