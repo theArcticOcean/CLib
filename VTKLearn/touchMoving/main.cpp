@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 
     vtkSPtrNew( quadricActor, vtkActor );
     quadricActor->SetMapper( xmlMapper );
-    quadricActor->GetProperty()->SetColor( 1, 0, 0 );
+    quadricActor->GetProperty()->SetColor( 1, 1, 1 );
 
     vtkSPtrNew( axesActor, vtkAxesActor );
     vtkSPtrNew( cube, vtkCubeSource );
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
     vtkSPtrNew( renderer, vtkRenderer );
     renderer->AddActor( cubeActor );
-    renderer->AddActor( axesActor );
+    //renderer->AddActor( axesActor );
     renderer->AddActor( quadricActor );
     renderer->SetBackground( 0, 0, 0 );
     // ------------- finished: init scene -----------------

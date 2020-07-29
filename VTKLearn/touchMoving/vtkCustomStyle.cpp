@@ -78,6 +78,7 @@ void vtkCustomStyle::OnMouseMove()
         {
             PointStruct pt;
             m_BottomPoints->GetPoint( i, pt.point );
+            //m_CubeActor->GetUserTransform()->TransformPoint( pt.point, pt.point );
             trans0->TransformPoint( pt.point, pt.point );
             PointStruct ptOnSurface = GetProjectedPtOnSurface( pt, toothMesh );
             sourcePts->InsertNextPoint( pt.point );
