@@ -13,6 +13,7 @@
 #include <vtkTransformFilter.h>
 #include <vtkXMLPolyDataReader.h>
 #include <vtkTransform.h>
+#include <vtkCamera.h>
 
 #include "vtkCustomStyle.h"
 #include "../tool.h"
@@ -83,6 +84,7 @@ int main(int argc, char *argv[])
     // ------------- finished: configure vtkCustomStyle ----------------
 
     renderer->ResetCamera();
+    renderer->GetActiveCamera()->ParallelProjectionOn();
     renderWindow->Render();
     renderWindowInteractor->Start();
     return 0;
