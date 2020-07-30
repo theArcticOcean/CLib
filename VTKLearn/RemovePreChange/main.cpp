@@ -27,6 +27,7 @@ void ConvertToStage2( vtkActor *actor );
 
 int main()
 {
+    double zoomFactor = 0.3;
     vtkSPtrNew( cone, vtkConeSource );
     vtkSPtrNew( mapper, vtkPolyDataMapper );
     mapper->SetInputConnection( cone->GetOutputPort() );
@@ -37,36 +38,44 @@ int main()
     vtkSPtrNew( renderer, vtkRenderer );
     renderer->AddActor(actor);
     renderer->SetBackground( 0, 0, 0 );
+    renderer->GetActiveCamera()->ParallelProjectionOn();
+    renderer->GetActiveCamera()->Zoom( zoomFactor );
+    renderer->SetLayer( 1 );
+
+    vtkSPtrNew( backRenderer, vtkRenderer );
+    backRenderer->SetBackground( 0, 0, 0 );
+    backRenderer->SetInteractive( 0 );
+    backRenderer->GetActiveCamera()->ParallelProjectionOn();
+    backRenderer->GetActiveCamera()->Zoom( zoomFactor );
+    backRenderer->SetLayer( 0 );
 
     vtkSPtrNew( renderWindow, vtkRenderWindow );
+    renderWindow->SetNumberOfLayers( 2 );
+    renderWindow->AddRenderer( backRenderer );
     renderWindow->AddRenderer( renderer );
     renderWindow->SetSize( 100, 100 );
 
     // ------------- add lmm lines -----------------
-    vtkSPtrNew( v1mmMapper, vtkPolyDataMapper2D );
+    vtkSPtrNew( v1mmMapper, vtkPolyDataMapper );
     vtkSPtrNew( v1mmPolyData, vtkPolyData );
     vtkSPtrNew( v1mmLines, vtkCellArray );
     vtkSPtrNew( v1mmPoints, vtkPoints );
-    vtkSPtrNew( coords, vtkCoordinate );
 
     v1mmPolyData->SetPoints( v1mmPoints );
     v1mmPolyData->SetLines( v1mmLines );
     v1mmMapper->SetInputData( v1mmPolyData );
 
-    coords->SetCoordinateSystemToView();
-    v1mmMapper->SetTransformCoordinate( coords );
-
-    vtkSPtrNew( v1mmLinesActor, vtkActor2D );
+    vtkSPtrNew( v1mmLinesActor, vtkActor );
     v1mmLinesActor->SetMapper( v1mmMapper );
     v1mmLinesActor->GetProperty()->SetColor( 1, 0, 0 );
     v1mmLinesActor->GetProperty()->SetLineWidth( 1 );
     v1mmLinesActor->DragableOff();
     v1mmLinesActor->PickableOff();
 
-    renderer->AddActor2D( v1mmLinesActor );
+    backRenderer->AddActor( v1mmLinesActor );
 
     //--------------------start generate lines------------------
-    double mmSize = 0.2;
+    double mmSize = 1;
     v1mmPoints->Initialize();
     v1mmLines->Initialize();
     double width = renderWindow->GetScreenSize()[0]; //GetActualSize()[0];
@@ -75,20 +84,20 @@ int main()
 
     double x, y;
     //--------------------vertical lines------------------
-    for ( x = -1; x <= 1; x += mmSize )
+    for ( x = -width / 2; x <= width / 2; x += mmSize )
     {
-        double linePoint1[3] = { x, -1, 0.0 };
-        double linePoint2[3] = { x, 1, 0.0 };
+        double linePoint1[3] = { x, -height/2, 0.0 };
+        double linePoint2[3] = { x, height/2, 0.0 };
         vtkIdType pointId1 = v1mmPoints->InsertNextPoint(linePoint1);
         vtkIdType pointId2 = v1mmPoints->InsertNextPoint(linePoint2);
         vtkIdType lineIds[2] = { pointId1, pointId2 };
         v1mmLines->InsertNextCell(2, lineIds);
     }
     //--------------------horizontal lines----------------
-    for ( y = -1; y <= 1; y += mmSize )
+    for ( y = -height/2; y <= height/2; y += mmSize )
     {
-        double linePoint1[3] = { -1, y, 0.0 };
-        double linePoint2[3] = { 1, y, 0.0 };
+        double linePoint1[3] = { -width/2, y, 0.0 };
+        double linePoint2[3] = { width/2, y, 0.0 };
         vtkIdType pointId1 = v1mmPoints->InsertNextPoint(linePoint1);
         vtkIdType pointId2 = v1mmPoints->InsertNextPoint(linePoint2);
         vtkIdType lineIds[2] = { pointId1, pointId2 };
@@ -103,23 +112,20 @@ int main()
     vtkSPtrNew( renderWindowInteractor, vtkRenderWindowInteractor );
     renderWindowInteractor->SetRenderWindow( renderWindow );
 
-    // -------------- configure camera --------------
-    renderer->ResetCamera();
-    vtkCamera *camera = renderer->GetActiveCamera();
-    PointStruct cameraPos;
-    camera->GetPosition( cameraPos.point );
-    PointStruct focusPos;
-    camera->GetFocalPoint( focusPos.point );
-    PointStruct viewDir = cameraPos - focusPos;
-    viewDir.Unit();
-    cameraPos = focusPos + viewDir * 10;
-    camera->SetPosition( cameraPos.point );
+    ConvertToStage1( actor );
+    vtkSPtrNew( trans1, vtkTransform );
+    trans1->DeepCopy( actor->GetUserTransform() );
 
-    renderer->ResetCameraClippingRange();
-    // -------------- configure camera --------------
+    ConvertToStage2( actor );
+    vtkSPtrNew( trans2, vtkTransform );
+    trans2->DeepCopy( actor->GetUserTransform() );
 
-    //ConvertToStage1( actor );
-    //ConvertToStage2( actor );
+    trans1->Inverse();
+    trans1->Update();
+
+    trans2->Concatenate( trans1 );
+    trans2->Update();
+    actor->SetUserTransform( trans2 );
 
     renderWindow->Render();
     renderWindowInteractor->Start();
