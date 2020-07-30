@@ -13,6 +13,7 @@
 #include <vtkCoordinate.h>
 #include <vtkCamera.h>
 #include <vtkProperty2D.h>
+#include <vtkTransform.h>
 
 #include "../tool.h"
 
@@ -20,6 +21,9 @@
 #define vtkSPtrNew(Var, Type) vtkSPtr<Type> Var = vtkSPtr<Type>::New();
 
 using namespace std;
+
+void ConvertToStage1( vtkActor *actor );
+void ConvertToStage2( vtkActor *actor );
 
 int main()
 {
@@ -114,7 +118,34 @@ int main()
     renderer->ResetCameraClippingRange();
     // -------------- configure camera --------------
 
+    //ConvertToStage1( actor );
+    //ConvertToStage2( actor );
+
     renderWindow->Render();
     renderWindowInteractor->Start();
     return 0;
 }
+
+void ConvertToStage1( vtkActor *actor )
+{
+    vtkSPtrNew( trans, vtkTransform );
+    trans->RotateZ( 30 );
+    trans->Scale( 2, 2, 2 );
+    trans->Update();
+
+    actor->SetUserTransform( trans );
+};
+
+void ConvertToStage2( vtkActor *actor )
+{
+    vtkSPtrNew( trans, vtkTransform );
+    trans->Translate( 2, 2, 0 );
+    trans->Update();
+    if( actor->GetUserTransform() )
+    {
+        trans->Concatenate( actor->GetUserTransform() );
+        trans->Update();
+    }
+
+    actor->SetUserTransform( trans );
+};
