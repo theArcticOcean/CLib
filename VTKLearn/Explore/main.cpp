@@ -76,8 +76,14 @@ int main()
     listF.SetPolyData( cutPd ); // for debug
     listF.SetRenderer( renderer ); // for debug
     listF.Init();
-    listF.ShowPoints();
+    //listF.ShowOriginalPoints();
     listF.Update();
+
+    for( int i = 0; i < listF.GetListsCount(); ++i )
+    {
+        vtkSPtr<vtkIdList> list = listF.GetList( i );
+        listF.ShowPointsByListOrder( list );
+    }
 
     vtkSPtrNew( renderWindow, vtkRenderWindow );
     renderWindow->AddRenderer( renderer );
