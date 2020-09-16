@@ -13,6 +13,7 @@
 #include <vtkTransformFilter.h>
 #include <vtkXMLPolyDataReader.h>
 #include <vtkTransform.h>
+#include <vtkMatrix4x4.h>
 
 #include "vtkCustomStyle.h"
 #include "../tool.h"
@@ -23,44 +24,50 @@
 int main(int argc, char *argv[])
 {
     // ------------- init scene -----------------
-    std::string path = "../superquadric.vtp";
-    vtkSPtrNew( xmlReader, vtkXMLPolyDataReader );
-    xmlReader->SetFileName( path.c_str() );
-    xmlReader->Update();
+    std::string path = "../tooth.vtp";
+    vtkSPtrNew( toothReader, vtkXMLPolyDataReader );
+    toothReader->SetFileName( path.c_str() );
+    toothReader->Update();
 
-    vtkSPtrNew( trans, vtkTransform );
-    trans->Scale( 10, 10, 10 );
-    trans->Update();
-    vtkSPtrNew( transFilter, vtkTransformFilter );
-    transFilter->SetInputData( xmlReader->GetOutput() );
-    transFilter->SetTransform( trans );
-    transFilter->Update();
+    vtkSPtrNew( toothMapper, vtkPolyDataMapper );
+    toothMapper->SetInputData( toothReader->GetOutput() );
 
-    vtkSPtrNew( xmlMapper, vtkPolyDataMapper );
-    xmlMapper->SetInputData( transFilter->GetPolyDataOutput() );
-
-    vtkSPtrNew( quadricActor, vtkActor );
-    quadricActor->SetMapper( xmlMapper );
-    quadricActor->GetProperty()->SetColor( 1, 0, 0 );
+    vtkSPtrNew( toothActor, vtkActor );
+    toothActor->SetMapper( toothMapper );
+    toothActor->GetProperty()->SetColor( 1, 1, 1 );
 
     vtkSPtrNew( axesActor, vtkAxesActor );
-    vtkSPtrNew( cube, vtkCubeSource );
+    path = "../bracket.vtp";
+    vtkSPtrNew( bracketReader, vtkXMLPolyDataReader );
+    bracketReader->SetFileName( path.c_str() );
+    bracketReader->Update();
     vtkSPtrNew( mapper, vtkPolyDataMapper );
-    mapper->SetInputConnection( cube->GetOutputPort() );
+    mapper->SetInputConnection( bracketReader->GetOutputPort() );
 
-    vtkSPtrNew( cubeActor, vtkActor );
-    cubeActor->SetMapper( mapper );
-    cubeActor->GetProperty()->SetColor( 1, 0, 0 );
+    vtkSPtrNew( bracketActor, vtkActor );
+    bracketActor->SetMapper( mapper );
+    bracketActor->GetProperty()->SetColor( 1, 0, 0 );
 
-    vtkSPtrNew( cubeTrans, vtkTransform );
-    cubeTrans->Translate( 0, 0, 5.5 );
-    cubeTrans->Update();
-    cubeActor->SetUserTransform( cubeTrans );
+    vtkSPtrNew( bracketTrans, vtkTransform );
+    double elements[4][4] = {{0.142535, -0.912866, 0.382571, 5.80672},
+                             {0.953836, 0.229913, 0.19323, 7.26857 },
+                             {-0.264351, 0.337367, 0.903494, 25.1871},
+                             { 0, 0, 0, 1}};
+    vtkSPtrNew( matrix, vtkMatrix4x4 );
+    for( int i = 0; i < 4; ++i )
+    {
+        for( int j = 0; j < 4; ++j )
+        {
+            matrix->SetElement( i, j, elements[i][j] );
+        }
+    }
+    bracketTrans->SetMatrix( matrix );
+    bracketActor->SetUserTransform( bracketTrans );
 
     vtkSPtrNew( renderer, vtkRenderer );
-    renderer->AddActor( cubeActor );
-    renderer->AddActor( axesActor );
-    renderer->AddActor( quadricActor );
+    renderer->AddActor( bracketActor );
+    //renderer->AddActor( axesActor );
+    renderer->AddActor( toothActor );
     renderer->SetBackground( 0, 0, 0 );
     // ------------- finished: init scene -----------------
 
@@ -75,8 +82,9 @@ int main(int argc, char *argv[])
     style->Setm_RenderWindow( renderWindow );
     style->Setm_Renderer( renderer );
     style->Setm_Interator( renderWindowInteractor );
-    style->InitPicker( cubeActor );
-
+    style->InitPicker( bracketActor );
+    style->Setm_ToothActor( toothActor );
+    style->ConfigureOBBTree();
     renderWindowInteractor->SetInteractorStyle( style );
     // ------------- finished: configure vtkCustomStyle ----------------
 
