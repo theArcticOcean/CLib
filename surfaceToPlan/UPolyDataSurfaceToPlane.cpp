@@ -22,20 +22,27 @@ void CUPolyDataSurfaceToPlane::SetClipPlane(vtkPlane *plane)
     m_ClipFunction = plane;
 }
 
-vtkSmartPointer<vtkPlane> CUPolyDataSurfaceToPlane::GetCellPlane(vtkSmartPointer<vtkCell> cell)
+vtkSmartPointer<vtkPlane> CUPolyDataSurfaceToPlane::GetCellPlane(vtkSmartPointer<vtkCell> cell, bool &outOfPlane)
 {
     auto points = cell->GetPoints();
     if( points->GetNumberOfPoints() != 3 )
     {
+        cout << "not triangle!\n";
         return nullptr;
     }
 
     PointStruct center, pts[3];
+    outOfPlane = false;
     for( int i = 0; i < points->GetNumberOfPoints(); ++i )
     {
         PointStruct pt( points->GetPoint( i ) );
         center = center + pt;
         pts[i] = pt;
+
+        if( m_ClipFunction->EvaluateFunction(pt.point) < 0 )
+        {
+            outOfPlane = true;
+        }
     }
     center /= 3;
     PointStruct normal = ( pts[0] - pts[1] ) ^ ( pts[0] - pts[2] );
@@ -61,18 +68,21 @@ int CUPolyDataSurfaceToPlane::RequestData
     // get the input and output
     vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
     vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-    double funcValueLimit = 10, normalAngleDiffLimit = 10;
+    double funcValueLimit = 1, normalAngleDiffLimit = 10;
     vtkSmartPointer<vtkIdList> surfaceCells = vtkSmartPointer<vtkIdList>::New();
+    PointStruct clipNormal( m_ClipFunction->GetNormal() );
+    cout << "clipNormal: " << clipNormal[0] << ", " << clipNormal[1] <<  ", " << clipNormal[2] << endl;
     for( int i = 0; i < input->GetNumberOfCells(); ++i )
     {
         vtkSmartPointer<vtkCell> cell = input->GetCell( i );
-        auto cellPlane = GetCellPlane( cell );
-        PointStruct clipNormal( m_ClipFunction->GetNormal() );
+        bool outOfPlane;
+        auto cellPlane = GetCellPlane( cell, outOfPlane );
         PointStruct cellNormal( cellPlane->GetNormal() );
         auto normalAngle = vtkMath::AngleBetweenVectors( clipNormal.point, cellNormal.point );
-
-        if( fabs( m_ClipFunction->EvaluateFunction( cellPlane->GetOrigin() ) ) < funcValueLimit &&
-            fabs( normalAngle ) < normalAngleDiffLimit )
+        auto funcValue = m_ClipFunction->EvaluateFunction( cellPlane->GetOrigin() );
+        if( outOfPlane ||
+            ( fabs( funcValue ) < funcValueLimit && fabs( normalAngle ) < normalAngleDiffLimit )
+          )
         {
             surfaceCells->InsertNextId( i );
         }
@@ -84,7 +94,7 @@ int CUPolyDataSurfaceToPlane::RequestData
     {
         auto cellId = surfaceCells->GetId( i );
         vtkIdType npts;
-        const vtkIdType *pts;
+        vtkIdType *pts;
         input->GetCell( cellId, pts );
         for( int j = 0; j < 3; ++j )
         {

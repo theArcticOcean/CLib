@@ -15,9 +15,9 @@ public:
 protected:
   CUPolyDataSurfaceToPlane(vtkPlane* cf = nullptr);
   ~CUPolyDataSurfaceToPlane() override;
-  vtkSmartPointer<vtkPlane> GetCellPlane(vtkSmartPointer<vtkCell> cell);
-
+  vtkSmartPointer<vtkPlane> GetCellPlane(vtkSmartPointer<vtkCell> cell, bool &outOfPlane);
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
   vtkPlane* m_ClipFunction;
 
 private:
