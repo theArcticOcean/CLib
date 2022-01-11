@@ -19,9 +19,7 @@
 #include <vtkTransform.h>
 #include <vtkParametricFunctionSource.h>
 #include <vtkInteractorStyleTrackballCamera.h>
-#include <QString>
 #include <vtkTextActor.h>
-#include <QDebug>
 #include <vtkCaptionActor2D.h>
 #include <vtkTextProperty.h>
 #include "vtkCustomStyle.h"

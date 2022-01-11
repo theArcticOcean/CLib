@@ -21,8 +21,6 @@
 #include <vtkTransform.h>
 #include <vtkParametricFunctionSource.h>
 #include <vtkInteractorStyleTrackballCamera.h>
-#include <QString>
-#include <QDebug>
 #include "tool.h"
 
 #define vtkPtr( var, className ) vtkSmartPointer<className> var = \
