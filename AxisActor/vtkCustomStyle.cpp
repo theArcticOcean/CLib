@@ -30,8 +30,8 @@ void vtkCustomStyle::OnRightButtonUp()
 
 void vtkCustomStyle::OnKeyPress()
 {
-    QString keyName( m_Interator->GetKeySym() );
-    qDebug() << keyName;
+    std::string keyName( m_Interator->GetKeySym() );
+    std::cout << keyName;
     if( "i" == keyName )
     {
         m_InteractorBanned = true;
