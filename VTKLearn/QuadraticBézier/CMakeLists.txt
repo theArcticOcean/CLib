@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(vtk802)
+project(QuadraticBézier)
 
 find_package( VTK REQUIRED )
 

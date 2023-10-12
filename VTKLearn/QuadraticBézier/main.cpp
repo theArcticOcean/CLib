@@ -44,9 +44,6 @@ vtkSmartPointer<vtkPolyData> ShowListByLine(std::vector<Point> list)
     return result;
 }
 
-//std::vector<Point> lastList;
-//std::vector<Point> curList;
-
 std::vector<Point> HandleNumSet(std::vector<Point> numSet)
 {
     Point p3 = (numSet[0] + numSet[1])*0.5;
@@ -55,13 +52,16 @@ std::vector<Point> HandleNumSet(std::vector<Point> numSet)
     return std::vector<Point>{ p3, p1_, p4 };
 }
 
-std::list<Point> SubdivisionProcedure( std::vector<Point> inputPoints )
+std::list<Point> SubdivisionProcedure( std::vector<Point> inputPoints, std::vector<Point> &markedPts )
 {
     std::list<Point> curList;
     for( auto value : inputPoints ){ curList.push_back( value ); }
 
     for( int i = 1; i < inputPoints.size() - 1; ++i )
     {
+        // the points had been changed will be ignore.
+        if( std::find( markedPts.begin(), markedPts.end(), inputPoints[i] ) != markedPts.end() ) continue;
+
         std::list<Point>::iterator lastOne = std::find(curList.begin(), curList.end(), inputPoints[i] );
         std::advance( lastOne, -1);
         std::list<Point>::iterator nextOne = std::find(curList.begin(), curList.end(), inputPoints[i] );
@@ -75,6 +75,8 @@ std::list<Point> SubdivisionProcedure( std::vector<Point> inputPoints )
         curList.insert( pos, newPts[1] );
         curList.insert( pos, newPts[2] );
         curList.erase( pos );
+
+        markedPts.push_back( newPts[1] );
     }
     return curList;
 }
@@ -83,7 +85,20 @@ int main(int argc, char* argv[])
 {
     vtkSmartPointer<vtkPolyData> input1 = ShowListByLine( originalPts );
 
-    std::list<Point> pts = SubdivisionProcedure( originalPts );
+    std::vector<Point> markedPts;
+    std::vector<Point> samplePts = originalPts;
+    std::list<Point> pts;
+    int iterationTimes = 13;
+    while( iterationTimes-- )
+    {
+        pts = SubdivisionProcedure( samplePts, markedPts );
+        samplePts.clear();
+        for( auto element: pts  )
+        {
+            samplePts.push_back( element );
+        }
+    }
+
     std::vector<Point> inputPts;
     for (const auto& element : pts) {
         inputPts.push_back( element );
