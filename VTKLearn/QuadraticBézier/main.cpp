@@ -22,7 +22,7 @@
 #define vtkSPtr vtkSmartPointer
 #define vtkSPtrNew(Var, Type) vtkSPtr<Type> Var = vtkSPtr<Type>::New();
 
-std::vector<Point> originalPts = { Point(1, 0, 0), Point(3, 3, 0), Point(7, 5, 0), Point(9, 0, 0) };
+std::vector<Point> originalPts = { Point(1, 0, 0), Point(3, 1, 0), Point(7, 10, 0), Point(9, 0, 0) };
 
 vtkSmartPointer<vtkPolyData> ShowListByLine(std::vector<Point> list)
 {
@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
     std::vector<Point> markedPts;
     std::vector<Point> samplePts = originalPts;
     std::list<Point> pts;
-    int iterationTimes = 13;
+    int iterationTimes = 11;
     while( iterationTimes-- )
     {
         pts = SubdivisionProcedure( samplePts, markedPts );

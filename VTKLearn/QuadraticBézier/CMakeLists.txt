@@ -7,12 +7,8 @@ find_package( VTK REQUIRED )
 add_executable(${PROJECT_NAME}
     "main.cpp"
     "point.hpp"
-    "CustomIteractorStyle.h"
-    "CustomIteractorStyle.cpp"
     "ULog.h"
-    "UPaintBrush.h"
-    "UPaintBrush.cpp")
-
+    )
 
 #find_package( VTK COMPONENTS vtkCommonCore vtkRenderingCore vtkInteractionStyle )
 
