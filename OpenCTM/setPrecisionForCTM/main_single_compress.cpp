@@ -113,8 +113,9 @@ int main()
         colorFunction->AddRGBPoint(minValue + 3*step, 1.0, 1.0, 0.0);           // Yellow
         colorFunction->AddRGBPoint(minValue + 4*step, 1.0, 0.5, 0.0);           // Orange
         colorFunction->AddRGBPoint(maxValue, 1.0, 0.0, 0.0);                    // Red
-        
+        std::cout << "minValue + 3*step: " << (minValue + 3*step) << std::endl;
         colorFunction->Build();
+
 
         signedDistanceMapper->SetLookupTable( colorFunction );
         signedDistanceMapper->UseLookupTableScalarRangeOn();
@@ -136,5 +137,13 @@ int main()
         renderWindow->Render();
         renWinInteractor->Start();
     }
+    
+    newFileName = "arch_o_u_new2.ctm";
+    success = ctmIO.SaveCtmFile(newPolyData, newFileName);
+    if( success  )
+    {
+        std::cout << "Successfully saved CTM file: " << newFileName << std::endl;
+    }
+    
     return 0;
 }

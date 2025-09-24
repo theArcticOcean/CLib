@@ -59,7 +59,7 @@ message( "======>    CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}" )
 
 # link_directories( ${OPENCTM_LIB_DIR} )
 
-add_executable( ${PROJECT_NAME} "main.cpp" "PointStruct.hpp" "UCtmIO.h" "UCtmIO.cpp" "ULog.h" "UCommonIO.h" "UCommonIO.cpp" "dirent_win.h" "UMacroDefinition.h"  ${openctm}  )
+add_executable( ${PROJECT_NAME} "main_read_compare.cpp" "PointStruct.hpp" "UCtmIO.h" "UCtmIO.cpp" "ULog.h" "UCommonIO.h" "UCommonIO.cpp" "dirent_win.h" "UMacroDefinition.h"  ${openctm}  )
 
 # we need openctm.lib
 target_link_libraries( ${PROJECT_NAME} ${VTK_LIBRARIES} )
