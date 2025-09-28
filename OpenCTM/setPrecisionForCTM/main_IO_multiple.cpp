@@ -90,5 +90,21 @@ int main()
 
     newFileName = "arch_o_u_new5.ctm";
     success = ctmIO.SaveCtmFile(newPolyData4, newFileName);
+
+    // ==== test original function ====
+    vtkSmartPointer<vtkPolyData> newPolyData5 = vtkSmartPointer<vtkPolyData>::New();
+    success = ctmIO.LoadCtmFile(newPolyData5, newFileName);
+    if (!success) {
+        std::cout << "Failed to read CTM file: " << newFileName << std::endl;
+        return -1;
+    }
+
+    newFileName = "arch_o_u_new6.ctm";
+    ctmIO.UpdateCompressionMethod(CTM_METHOD_MG1);
+    success = ctmIO.SaveCtmFile(newPolyData5, newFileName);
+    if (!success) {
+        std::cout << "Failed to read CTM file: " << newFileName << std::endl;
+        return -1;
+    }
     return 0;
 }

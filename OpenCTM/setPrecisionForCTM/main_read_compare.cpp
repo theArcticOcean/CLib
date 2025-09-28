@@ -22,8 +22,15 @@
 #include <vtkLookupTable.h>
 #include "UCtmIO.h"  // Add CUCtmIO header file
 
-int main()
+int main(int argc, char* argv[])
 {
+    // Check command line arguments
+    if (argc != 3) {
+        std::cout << "Usage: " << argv[0] << " <original_ctm_file> <new_ctm_file>" << std::endl;
+        std::cout << "Example: " << argv[0] << " arch_o_u.ctm arch_o_u_new5.ctm" << std::endl;
+        return -1;
+    }
+
     freopen("output.txt", "w", stdout);
 
     // Create CUCtmIO object
@@ -32,8 +39,8 @@ int main()
     // Create vtkPolyData object to store the read data
     vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
     
-    // Read CTM file
-    std::string fileName = "arch_o_u.ctm";
+    // Read CTM file from command line argument
+    std::string fileName = argv[1];
     bool success = ctmIO.LoadCtmFile(polyData, fileName);
     
     if (success) {
@@ -46,7 +53,7 @@ int main()
     }
 
     // save the polyData to new ctm file
-    std::string newFileName = "arch_o_u_new5.ctm";
+    std::string newFileName = argv[2];
     vtkSmartPointer<vtkPolyData> newPolyData = vtkSmartPointer<vtkPolyData>::New();
     success = ctmIO.LoadCtmFile(newPolyData, newFileName);
     if (success) {
