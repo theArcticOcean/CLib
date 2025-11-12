@@ -42,6 +42,9 @@ bool performSingleIO(CUCtmIO& ctmIO, const std::string& inputFileName, const std
     // Save the polyData to new ctm file
     ctmIO.UpdateCompressionMethod(CTM_METHOD_MG2);
     ctmIO.UpdateVertexPrecision(0.001);
+    //ctmIO.UpdateVertexPrecision(0.0001f);
+    //ctmIO.UpdateVertexPrecisionRel(0.01f); // 1% 相对误差  // multiple IO will fail
+
     success = ctmIO.SaveCtmFile(polyData, outputFileName);
     
     if (success) {

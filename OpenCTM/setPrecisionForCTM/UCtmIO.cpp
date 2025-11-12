@@ -167,6 +167,17 @@ void CUCtmIO::UpdateVertexPrecision(CTMfloat aPrecision)
     }
 }
 
+void CUCtmIO::UpdateVertexPrecisionRel(CTMfloat aRelPrecision)
+{
+    try{
+        m_CtmExporter.VertexPrecisionRel( aRelPrecision );
+    }
+    catch( std::exception &e ) {
+        LOG( ERR, "Error => ", e.what() );
+    }
+}
+
+
 void CUCtmIO::PrintInfoOfPolydata(vtkPolyData *polydata)
 {
     POINTER_CHECK( polydata );

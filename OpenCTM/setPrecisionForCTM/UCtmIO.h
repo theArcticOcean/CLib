@@ -16,6 +16,7 @@ public:
 
     void UpdateCompressionMethod(CTMenum aMethod);
     void UpdateVertexPrecision(CTMfloat aPrecision);
+    void UpdateVertexPrecisionRel(CTMfloat aRelPrecision);
 protected:
     bool WriteFile(CTMuint aVertCount, CTMuint aTriCount, CTMfloat *aVertices, CTMuint *aIndices, const char *aFileName);
     void PrintInfoOfPolydata(vtkPolyData *polydata);
